@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
     // ================ BRAND CONFIG (tuỳ chỉnh theo từng trường) =================
     const brandConfig = {
-        logoSrc: "logo-fpt.png", // đổi sang logo trường, ví dụ: "logo-thpt-abc.png"
-        name: "FPT / School Career Center", // tên trường / đơn vị
+        logoSrc: "logo-CBB.png", // đổi sang logo trường, ví dụ: "logo-thpt-abc.png"
+        name: "CBB / School Career Center", // tên trường / đơn vị
         sub: "Trắc nghiệm tính cách nghề nghiệp Holland RIASEC" // tagline dưới logo
     };
 

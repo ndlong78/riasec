@@ -1,1008 +1,1234 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // ================ BRAND CONFIG =================
-    const brandConfig = {
-        logoSrc: "logo-cbb.png", // Đặt file logo-cbb.png cùng thư mục với index.html
-        name: "CBB & Family",
-        sub: "Trắc nghiệm tính cách nghề nghiệp Holland RIASEC cho học sinh & gia đình"
-    };
+// ==============================
+// Constants & Global State
+// ==============================
 
-    const brandLogoEl = document.getElementById("brand-logo");
-    const brandNameEl = document.getElementById("brand-name");
-    const brandSubEl = document.getElementById("brand-sub");
+const ADMIN_PASSWORD = "giaovien2025";
 
-    if (brandLogoEl && brandConfig.logoSrc) {
-        brandLogoEl.src = brandConfig.logoSrc;
-    }
-    if (brandNameEl && brandConfig.name) {
-        brandNameEl.textContent = brandConfig.name;
-    }
-    if (brandSubEl && brandConfig.sub) {
-        brandSubEl.textContent = brandConfig.sub;
-    }
+const STORAGE_KEYS = {
+    HISTORY: "riasecHistory_v1",
+    DRAFT: "riasecDraft_v1",
+    GH_CONFIG: "riasecGhConfig_v1"
+};
 
-    // ================ ADMIN PASSWORD =================
-    const ADMIN_PASSWORD = "giaovien2025";
-    let adminUnlocked = false;
+let lastResult = null;
+let barChart = null;
+let radarChart = null;
 
-    // ===================== DATA ============================
-    const riasecMeta = {
-        R: {
-            code: "R",
-            name: "Realistic – Thực tế",
-            shortName: "Realistic",
-            desc: "Thích làm việc với tay chân, máy móc, dụng cụ, thích hoạt động ngoài trời hơn là ngồi văn phòng.",
-            careers: [
-                "Kỹ thuật cơ khí, cơ điện tử",
-                "Kỹ thuật điện, điện tử, điện lạnh",
-                "Kỹ thuật ô tô, công nghệ ô tô, chuẩn đoán & sửa chữa ô tô",
-                "Kỹ thuật xây dựng dân dụng, công trình giao thông",
-                "Kỹ thuật điều khiển và tự động hóa",
-                "Công nghệ kỹ thuật công nghiệp, bảo trì thiết bị",
-                "Công nghệ nông nghiệp, chăn nuôi, trồng trọt công nghệ cao",
-                "Kỹ thuật viên lắp đặt – bảo trì mạng viễn thông, Internet",
-                "Kỹ thuật viên vận hành nhà máy, khu công nghiệp",
-                "Ngành Logistics kho bãi, quản lý vận hành thiết bị"
-            ]
-        },
-        I: {
-            code: "I",
-            name: "Investigative – Nghiên cứu",
-            shortName: "Investigative",
-            desc: "Thích tìm hiểu, phân tích, giải quyết vấn đề, yêu thích khoa học, công nghệ và dữ liệu.",
-            careers: [
-                "Khoa học máy tính, Kỹ thuật phần mềm",
-                "Khoa học dữ liệu, Trí tuệ nhân tạo (AI)",
-                "An toàn thông tin, An ninh mạng",
-                "Y khoa, Răng – Hàm – Mặt, Dược học",
-                "Sinh học, Công nghệ sinh học, Vi sinh",
-                "Toán học, Toán ứng dụng, Thống kê",
-                "Vật lý kỹ thuật, Hóa học, Công nghệ hóa học",
-                "Kỹ thuật môi trường, Khoa học trái đất",
-                "Nghiên cứu & phát triển (R&D) trong doanh nghiệp",
-                "Phân tích dữ liệu kinh doanh, Business Intelligence"
-            ]
-        },
-        A: {
-            code: "A",
-            name: "Artistic – Nghệ thuật",
-            shortName: "Artistic",
-            desc: "Thích sáng tạo, tự do, nghệ thuật, thiết kế, ít thích sự gò bó theo quy tắc cứng nhắc.",
-            careers: [
-                "Thiết kế đồ họa, Thiết kế thương hiệu (Branding)",
-                "Thiết kế UX/UI cho sản phẩm số, ứng dụng, website",
-                "Kiến trúc, Thiết kế nội thất, Quy hoạch đô thị",
-                "Truyền thông đa phương tiện, Sản xuất video, Motion graphic",
-                "Nhiếp ảnh, Quay phim, Dựng phim",
-                "Âm nhạc, Thanh nhạc, Nhạc công, Sản xuất âm nhạc",
-                "Biên kịch, Đạo diễn, Diễn viên sân khấu – điện ảnh",
-                "Thiết kế thời trang, Stylist, Thiết kế phụ kiện",
-                "Ngôn ngữ & Viết: Copywriter, Content Creator, Biên tập viên",
-                "Thiết kế game, Thiết kế nhân vật – bối cảnh trong game"
-            ]
-        },
-        S: {
-            code: "S",
-            name: "Social – Xã hội",
-            shortName: "Social",
-            desc: "Thích giúp đỡ người khác, làm việc với con người, dạy học, chăm sóc, lắng nghe.",
-            careers: [
-                "Sư phạm (Giáo viên tiểu học, THCS, THPT)",
-                "Giáo dục mầm non, Giáo dục đặc biệt",
-                "Tâm lý học, Tâm lý học giáo dục, Tham vấn học đường",
-                "Y tá, Điều dưỡng, Kỹ thuật viên y tế, Hộ sinh",
-                "Công tác xã hội, Phát triển cộng đồng",
-                "Chuyên viên nhân sự (HR), Đào tạo & Phát triển",
-                "Tư vấn viên hướng nghiệp, Tư vấn tuyển sinh",
-                "Hướng dẫn viên du lịch, Điều hành tour",
-                "Huấn luyện viên thể thao, Fitness, Coach kỹ năng mềm",
-                "Chăm sóc khách hàng, CSKH cao cấp"
-            ]
-        },
-        E: {
-            code: "E",
-            name: "Enterprising – Doanh nghiệp",
-            shortName: "Enterprising",
-            desc: "Thích lãnh đạo, kinh doanh, thuyết phục, bán hàng, khởi nghiệp, thích thử thách.",
-            careers: [
-                "Quản trị kinh doanh, Quản trị doanh nghiệp",
-                "Marketing, Digital Marketing, Truyền thông thương hiệu",
-                "Kinh doanh quốc tế, Thương mại điện tử",
-                "Tài chính – Ngân hàng, Đầu tư chứng khoán",
-                "Quản trị du lịch, Nhà hàng – Khách sạn, Resort",
-                "Chuyên viên bán hàng (Sales), Tư vấn tài chính, BĐS",
-                "Quản trị chuỗi cung ứng, Quản trị Logistics",
-                "Khởi nghiệp Startup, Chủ doanh nghiệp nhỏ",
-                "Quản trị dự án, Quản lý sản phẩm (Product Manager)",
-                "MC, Host chương trình, KOL/Influencer kinh doanh"
-            ]
-        },
-        C: {
-            code: "C",
-            name: "Conventional – Truyền thống",
-            shortName: "Conventional",
-            desc: "Thích công việc gọn gàng, có quy trình rõ ràng, làm việc với số liệu, văn bản, hệ thống.",
-            careers: [
-                "Kế toán, Kiểm toán, Tài chính doanh nghiệp",
-                "Nhân viên hành chính – văn phòng, Thư ký, Trợ lý",
-                "Quản trị văn phòng, Quản trị nhân sự vận hành",
-                "Thống kê, Phân tích dữ liệu nghiệp vụ",
-                "Ngân hàng – giao dịch viên, hỗ trợ tín dụng",
-                "Quản trị hệ thống thông tin quản lý (MIS)",
-                "Nhân viên hồ sơ, chứng từ, xuất nhập khẩu",
-                "Chuyên viên quản lý chất lượng (QA/QC)",
-                "Thư viện, Lưu trữ, Văn thư",
-                "Nhân viên vận hành hệ thống ERP, CRM trong doanh nghiệp"
-            ]
-        }
-    };
+// ==============================
+// Data: Questions & Meta
+// ==============================
 
-    const evalByType = {
-        R: "Bạn thiên về nhóm Thực tế (Realistic): hợp môi trường thực hành, máy móc, kỹ thuật, hoạt động cụ thể hơn là ngồi bàn giấy quá nhiều.",
-        I: "Bạn thiên về nhóm Nghiên cứu (Investigative): hợp phân tích, tư duy logic, khoa học – công nghệ, dữ liệu và những vấn đề cần đào sâu.",
-        A: "Bạn thiên về nhóm Nghệ thuật (Artistic): hợp công việc sáng tạo, thẩm mỹ, thiết kế, nội dung – nơi bạn được thể hiện cá tính và ý tưởng.",
-        S: "Bạn thiên về nhóm Xã hội (Social): hợp môi trường làm việc với con người, giúp đỡ, giảng dạy, lắng nghe và hỗ trợ người khác.",
-        E: "Bạn thiên về nhóm Doanh nghiệp (Enterprising): hợp kinh doanh, lãnh đạo, thuyết phục, nơi có mục tiêu, thành tích và cơ hội thăng tiến.",
-        C: "Bạn thiên về nhóm Truyền thống (Conventional): hợp công việc ổn định, có quy trình, số liệu rõ ràng, ít rủi ro và có trật tự."
-    };
+/**
+ * 60 câu hỏi – 10 câu cho mỗi nhóm R, I, A, S, E, C
+ * id: 1..60, type: "R" | "I" | ...
+ */
+const questions = [
+    // R – Realistic
+    { id: 1, type: "R", text: "Tôi thích sửa chữa hoặc lắp ráp các thiết bị, đồ vật." },
+    { id: 2, type: "R", text: "Tôi thích tham gia các hoạt động ngoài trời, vận động tay chân." },
+    { id: 3, type: "R", text: "Tôi cảm thấy hứng thú với máy móc, công cụ hoặc thiết bị kỹ thuật." },
+    { id: 4, type: "R", text: "Tôi thích làm việc bằng tay hơn là chỉ ngồi trước bàn giấy." },
+    { id: 5, type: "R", text: "Tôi thấy việc sửa chữa, bảo trì thiết bị là rất thú vị." },
+    { id: 6, type: "R", text: "Tôi thích các môn học liên quan đến công nghệ, kỹ thuật, thực hành." },
+    { id: 7, type: "R", text: "Tôi thích quan sát cách máy móc hoạt động và tìm hiểu cấu tạo của chúng." },
+    { id: 8, type: "R", text: "Tôi không ngại bẩn tay khi làm việc hoặc tham gia các hoạt động thực tế." },
+    { id: 9, type: "R", text: "Tôi thường là người chủ động giúp sửa đồ trong gia đình hoặc lớp học." },
+    { id: 10, type: "R", text: "Tôi muốn làm việc trong môi trường có công cụ, máy móc, thiết bị." },
 
-    const questions = [
-        // R
-        { id: 1, type: "R", text: "Tôi thích sửa chữa hoặc lắp ráp các thiết bị (xe, máy móc, đồ điện...)."},
-        { id: 2, type: "R", text: "Tôi thích làm việc bằng tay hơn là chỉ ngồi bàn giấy."},
-        { id: 3, type: "R", text: "Tôi cảm thấy thú vị khi sử dụng dụng cụ như búa, tua-vít, kìm..."},
-        { id: 4, type: "R", text: "Tôi thích các hoạt động ngoài trời như trồng cây, làm vườn, cắm trại."},
-        { id: 5, type: "R", text: "Tôi thấy quen thuộc và thoải mái trong môi trường xưởng, kho hoặc công trường."},
-        { id: 6, type: "R", text: "Tôi thích lắp ráp mô hình, robot hoặc LEGO."},
-        { id: 7, type: "R", text: "Tôi muốn hiểu cách vận hành của các máy móc, thiết bị kỹ thuật."},
-        { id: 8, type: "R", text: "Khi đồ trong nhà hỏng, tôi thường muốn tự mày mò sửa trước."},
-        { id: 9, type: "R", text: "Tôi thấy hài lòng khi hoàn thành một việc mang tính “tay chân” cụ thể."},
-        { id: 10, type: "R", text: "Tôi không ngại bị bẩn tay khi làm việc nếu đó là việc mình thích."},
-        // I
-        { id: 11, type: "I", text: "Tôi thích tìm hiểu nguyên nhân phía sau một hiện tượng (vì sao lại xảy ra như vậy)."},
-        { id: 12, type: "I", text: "Tôi hứng thú với việc đọc sách/website về khoa học, công nghệ hoặc kiến thức mới."},
-        { id: 13, type: "I", text: "Tôi thích giải những bài toán khó hoặc câu đố logic, tư duy."},
-        { id: 14, type: "I", text: "Tôi thường đặt nhiều câu hỏi “vì sao” khi học một khái niệm mới."},
-        { id: 15, type: "I", text: "Tôi thích phân tích số liệu, biểu đồ hoặc thông tin để tìm ra kết luận."},
-        { id: 16, type: "I", text: "Tôi cảm thấy thích thú khi thử nghiệm, làm thí nghiệm, kiểm chứng ý tưởng."},
-        { id: 17, type: "I", text: "Tôi quan tâm đến các ngành như y khoa, công nghệ, khoa học dữ liệu hoặc nghiên cứu."},
-        { id: 18, type: "I", text: "Tôi có xu hướng tra cứu thêm thông tin ngoài sách giáo khoa khi tò mò về một chủ đề."},
-        { id: 19, type: "I", text: "Tôi thích làm việc độc lập, tập trung suy nghĩ hơn là phải giao tiếp liên tục."},
-        { id: 20, type: "I", text: "Khi gặp một vấn đề, tôi thích phân tích từng bước và tìm giải pháp hợp lý."},
-        // A
-        { id: 21, type: "A", text: "Tôi thích vẽ, thiết kế, chụp ảnh hoặc tạo nội dung sáng tạo."},
-        { id: 22, type: "A", text: "Tôi thường để ý đến màu sắc, bố cục, thẩm mỹ xung quanh."},
-        { id: 23, type: "A", text: "Tôi thích nghe nhạc, chơi nhạc cụ, hát hoặc các hoạt động nghệ thuật biểu diễn."},
-        { id: 24, type: "A", text: "Tôi muốn công việc tương lai có yếu tố sáng tạo, không quá gò bó."},
-        { id: 25, type: "A", text: "Tôi hay nghĩ ra ý tưởng mới, cách thể hiện mới cho bài thuyết trình hoặc bài tập."},
-        { id: 26, type: "A", text: "Tôi thích viết: nhật ký, truyện ngắn, thơ hoặc nội dung cho mạng xã hội."},
-        { id: 27, type: "A", text: "Tôi cảm thấy hứng thú với các ngành như thiết kế đồ họa, kiến trúc, media, phim ảnh."},
-        { id: 28, type: "A", text: "Tôi thích không gian học tập/làm việc được trang trí đẹp và có cá tính."},
-        { id: 29, type: "A", text: "Tôi không thích các công việc lặp lại, ít ý tưởng mới."},
-        { id: 30, type: "A", text: "Tôi dễ bị thu hút bởi những sản phẩm/chiến dịch có thiết kế hoặc câu chuyện sáng tạo."},
-        // S
-        { id: 31, type: "S", text: "Tôi thích giúp đỡ, lắng nghe và hỗ trợ bạn bè khi họ gặp khó khăn."},
-        { id: 32, type: "S", text: "Tôi thấy thoải mái khi làm việc nhóm, trao đổi với người khác."},
-        { id: 33, type: "S", text: "Tôi quan tâm đến cảm xúc và suy nghĩ của người xung quanh."},
-        { id: 34, type: "S", text: "Tôi thích tham gia các hoạt động câu lạc bộ, tình nguyện, hỗ trợ cộng đồng."},
-        { id: 35, type: "S", text: "Tôi sẵn sàng dành thời gian giải thích, hướng dẫn cho bạn bè khi họ chưa hiểu bài."},
-        { id: 36, type: "S", text: "Tôi thích những nghề được tiếp xúc nhiều với con người (học sinh, bệnh nhân, khách hàng...)."},
-        { id: 37, type: "S", text: "Tôi cảm thấy vui khi thấy người khác tiến bộ nhờ sự hỗ trợ của mình."},
-        { id: 38, type: "S", text: "Mọi người thường tìm đến tôi để tâm sự hoặc xin lời khuyên."},
-        { id: 39, type: "S", text: "Tôi quan tâm đến môi trường học đường tích cực, thân thiện."},
-        { id: 40, type: "S", text: "Tôi muốn công việc tương lai có ý nghĩa với cộng đồng, xã hội."},
-        // E
-        { id: 41, type: "E", text: "Tôi thích thuyết trình, thảo luận trước lớp hoặc đám đông."},
-        { id: 42, type: "E", text: "Tôi cảm thấy hứng thú với ý tưởng kinh doanh, khởi nghiệp hoặc làm dự án riêng."},
-        { id: 43, type: "E", text: "Tôi thích đặt mục tiêu rõ ràng và cố gắng đạt được (điểm số, cuộc thi, doanh thu...)."},
-        { id: 44, type: "E", text: "Tôi không ngại nói chuyện, thương lượng hoặc thuyết phục người khác."},
-        { id: 45, type: "E", text: "Tôi quan tâm đến các ngành như kinh doanh, marketing, tài chính, quản lý."},
-        { id: 46, type: "E", text: "Tôi thích đóng vai trò “leader” (trưởng nhóm, lớp trưởng, điều phối hoạt động...)."},
-        { id: 47, type: "E", text: "Tôi muốn công việc có cơ hội thăng tiến, thu nhập cao nếu nỗ lực tốt."},
-        { id: 48, type: "E", text: "Tôi thích tìm cách “bán” ý tưởng của mình cho người khác."},
-        { id: 49, type: "E", text: "Tôi sẵn sàng chấp nhận rủi ro hợp lý để theo đuổi cơ hội mới."},
-        { id: 50, type: "E", text: "Tôi cảm thấy hứng khởi trong môi trường năng động, cạnh tranh."},
-        // C
-        { id: 51, type: "C", text: "Tôi thích công việc rõ ràng, có quy trình, có hướng dẫn cụ thể."},
-        { id: 52, type: "C", text: "Tôi cảm thấy thoải mái khi làm việc với bảng tính, số liệu hoặc hồ sơ, giấy tờ."},
-        { id: 53, type: "C", text: "Tôi thích sắp xếp, tổ chức lại đồ đạc, tài liệu, thư mục máy tính cho ngăn nắp."},
-        { id: 54, type: "C", text: "Tôi chú ý các chi tiết nhỏ, ít khi bỏ sót thông tin quan trọng."},
-        { id: 55, type: "C", text: "Tôi thấy ổn khi làm những công việc lặp lại nhưng rõ ràng, dễ theo dõi."},
-        { id: 56, type: "C", text: "Tôi thích ghi chép, lập danh sách việc cần làm và tick dần từng mục."},
-        { id: 57, type: "C", text: "Tôi quan tâm đến các ngành như kế toán, hành chính, quản lý hồ sơ, dữ liệu."},
-        { id: 58, type: "C", text: "Tôi ít thích sự mơ hồ, thích biết rõ mình phải làm gì, deadline khi nào."},
-        { id: 59, type: "C", text: "Tôi làm việc tốt hơn khi có quy định, quy trình được xây dựng sẵn."},
-        { id: 60, type: "C", text: "Tôi thích cảm giác “mọi thứ gọn gàng, có trật tự” trong công việc và cuộc sống."}
-    ];
+    // I – Investigative
+    { id: 11, type: "I", text: "Tôi thích suy nghĩ, phân tích và tìm lời giải cho các vấn đề khó." },
+    { id: 12, type: "I", text: "Tôi hứng thú với khoa học, công nghệ hoặc nghiên cứu." },
+    { id: 13, type: "I", text: "Tôi thường đặt câu hỏi “tại sao?” và muốn hiểu bản chất vấn đề." },
+    { id: 14, type: "I", text: "Tôi thích làm việc với số liệu, biểu đồ, dữ liệu." },
+    { id: 15, type: "I", text: "Tôi thích các môn như Toán, Lý, Hóa, Tin học hoặc Sinh (tùy sở thích)." },
+    { id: 16, type: "I", text: "Tôi cảm thấy hứng thú khi đọc hoặc xem tài liệu khoa học, khám phá." },
+    { id: 17, type: "I", text: "Tôi muốn hiểu nguyên lý hoạt động của mọi thứ xung quanh mình." },
+    { id: 18, type: "I", text: "Tôi thích làm thí nghiệm hoặc thực hiện các dự án nghiên cứu nhỏ." },
+    { id: 19, type: "I", text: "Tôi thường suy nghĩ rất kỹ trước khi đưa ra kết luận." },
+    { id: 20, type: "I", text: "Tôi muốn làm việc trong lĩnh vực có tính logic và phân tích cao." },
 
-    // ===================== DOM ============================
-    const questionsContainer = document.getElementById("questions-container");
-    const progressText = document.getElementById("progress-text");
-    const progressPercent = document.getElementById("progress-percent");
-    const progressBar = document.getElementById("progress-bar");
-    const submitBtn = document.getElementById("submit-btn");
-    const warningText = document.getElementById("warning-text");
-    const resetBtn = document.getElementById("reset-btn");
-    const resultCodePill = document.getElementById("result-code-pill");
-    const top3Container = document.getElementById("top3-container");
-    const careersContainer = document.getElementById("careers-container");
-    const riasecDetailGrid = document.getElementById("riasec-detail-grid");
-    const overallEval = document.getElementById("overall-eval");
-    const retakeBtn = document.getElementById("retake-btn");
-    const backToQuizBtn = document.getElementById("back-to-quiz-btn");
-    const saveLocalBtn = document.getElementById("save-local-btn");
-    const downloadTxtBtn = document.getElementById("download-txt-btn");
-    const printBtn = document.getElementById("print-btn");
-    const historyBody = document.getElementById("history-body");
-    const summaryStudentInfo = document.getElementById("summary-student-info");
-    const exportCsvBtn = document.getElementById("export-csv-btn");
-    const sendGithubBtn = document.getElementById("send-github-btn");
+    // A – Artistic
+    { id: 21, type: "A", text: "Tôi thích vẽ, thiết kế, dựng hình, chụp ảnh hoặc quay video." },
+    { id: 22, type: "A", text: "Tôi yêu thích âm nhạc, phim ảnh, văn học hoặc nghệ thuật biểu diễn." },
+    { id: 23, type: "A", text: "Tôi thích tạo ra điều gì đó mới mẻ, độc đáo theo phong cách riêng của mình." },
+    { id: 24, type: "A", text: "Tôi không thích bị gò bó trong các quy tắc quá cứng nhắc." },
+    { id: 25, type: "A", text: "Tôi thích viết lách, làm thơ, viết truyện hoặc sáng tác nội dung." },
+    { id: 26, type: "A", text: "Tôi thường để ý đến màu sắc, bố cục, thiết kế của mọi thứ xung quanh." },
+    { id: 27, type: "A", text: "Tôi muốn thể hiện cảm xúc và ý tưởng của mình qua nghệ thuật." },
+    { id: 28, type: "A", text: "Tôi thích thử những cách làm mới thay vì làm theo lối mòn." },
+    { id: 29, type: "A", text: "Tôi thấy hứng thú với các công việc tự do, sáng tạo nội dung." },
+    { id: 30, type: "A", text: "Tôi muốn làm việc trong môi trường năng động, sáng tạo." },
 
-    const studentNameInput = document.getElementById("student-name");
-    const studentClassInput = document.getElementById("student-class");
-    const studentIdInput = document.getElementById("student-id");
-    const studentEmailInput = document.getElementById("student-email");
+    // S – Social
+    { id: 31, type: "S", text: "Tôi thích giúp đỡ, hỗ trợ hoặc lắng nghe người khác." },
+    { id: 32, type: "S", text: "Tôi cảm thấy vui khi người khác hiểu bài nhờ tôi giảng lại." },
+    { id: 33, type: "S", text: "Tôi dễ đồng cảm với cảm xúc, khó khăn của người khác." },
+    { id: 34, type: "S", text: "Tôi thích tham gia các hoạt động tình nguyện, cộng đồng." },
+    { id: 35, type: "S", text: "Tôi thường là người mà bạn bè hay tìm đến để tâm sự, xin lời khuyên." },
+    { id: 36, type: "S", text: "Tôi thích làm việc nhóm và cùng nhau đạt được mục tiêu chung." },
+    { id: 37, type: "S", text: "Tôi quan tâm đến những ngành giúp cải thiện cuộc sống người khác." },
+    { id: 38, type: "S", text: "Tôi muốn hiểu tâm lý, suy nghĩ và hành vi của con người." },
+    { id: 39, type: "S", text: "Tôi thấy mình kiên nhẫn khi giải thích hoặc hướng dẫn cho người khác." },
+    { id: 40, type: "S", text: "Tôi muốn làm việc trong môi trường có nhiều sự tương tác giữa con người với con người." },
 
-    const navIntro = document.getElementById("nav-intro");
-    const navQuiz = document.getElementById("nav-quiz");
-    const navResults = document.getElementById("nav-results");
-    const navAdmin = document.getElementById("nav-admin");
+    // E – Enterprising
+    { id: 41, type: "E", text: "Tôi thích thuyết trình, nói trước đám đông hoặc dẫn dắt nhóm." },
+    { id: 42, type: "E", text: "Tôi quan tâm đến kinh doanh, khởi nghiệp hoặc tạo ra dự án riêng." },
+    { id: 43, type: "E", text: "Tôi thích đưa ra ý tưởng mới và thuyết phục người khác làm theo." },
+    { id: 44, type: "E", text: "Tôi sẵn sàng chấp nhận rủi ro có tính toán để đạt mục tiêu." },
+    { id: 45, type: "E", text: "Tôi thích làm việc trong môi trường cạnh tranh, năng động." },
+    { id: 46, type: "E", text: "Tôi thấy mình có khả năng lãnh đạo hoặc điều phối công việc." },
+    { id: 47, type: "E", text: "Tôi quan tâm đến các ngành như kinh doanh, marketing, quản trị." },
+    { id: 48, type: "E", text: "Tôi thích thương lượng, đàm phán hoặc “chốt deal”." },
+    { id: 49, type: "E", text: "Tôi không ngại đứng ra chịu trách nhiệm cho quyết định của mình." },
+    { id: 50, type: "E", text: "Tôi muốn công việc của mình tạo ra ảnh hưởng rộng, tác động đến nhiều người." },
 
-    const pages = document.querySelectorAll(".page");
-    const tabButtons = document.querySelectorAll(".tab-btn");
+    // C – Conventional
+    { id: 51, type: "C", text: "Tôi thích sự gọn gàng, ngăn nắp và có trật tự." },
+    { id: 52, type: "C", text: "Tôi cảm thấy yên tâm khi công việc có quy trình, hướng dẫn rõ ràng." },
+    { id: 53, type: "C", text: "Tôi thích làm việc với số liệu, bảng biểu hoặc hồ sơ giấy tờ." },
+    { id: 54, type: "C", text: "Tôi thường lập kế hoạch, to-do list để quản lý việc cần làm." },
+    { id: 55, type: "C", text: "Tôi chú ý đến chi tiết và ít khi bỏ sót thông tin quan trọng." },
+    { id: 56, type: "C", text: "Tôi thấy thoải mái khi làm những công việc đều đặn, ổn định." },
+    { id: 57, type: "C", text: "Tôi thích các công việc liên quan đến quản lý hồ sơ, tài chính, dữ liệu." },
+    { id: 58, type: "C", text: "Tôi thường là người giữ gìn kỷ luật, nội quy trong nhóm/lớp." },
+    { id: 59, type: "C", text: "Tôi cảm thấy khó chịu khi mọi thứ quá lộn xộn, thiếu tổ chức." },
+    { id: 60, type: "C", text: "Tôi muốn làm việc trong môi trường văn phòng, có hệ thống rõ ràng." }
+];
 
-    // Admin GitHub config inputs
-    const ghOwnerInput = document.getElementById("gh-owner");
-    const ghRepoInput = document.getElementById("gh-repo");
-    const ghTokenInput = document.getElementById("gh-token");
-    const ghPassphraseInput = document.getElementById("gh-passphrase");
-    const ghSaveConfigBtn = document.getElementById("gh-save-config-btn");
-    const ghClearConfigBtn = document.getElementById("gh-clear-config-btn");
-
-    // Filter
-    const filterClassInput = document.getElementById("filter-class");
-    const filterFromDateInput = document.getElementById("filter-from-date");
-    const filterToDateInput = document.getElementById("filter-to-date");
-    const filterApplyBtn = document.getElementById("filter-apply-btn");
-    const filterResetBtn = document.getElementById("filter-reset-btn");
-
-    let barChart = null;
-    let radarChart = null;
-    let lastResult = null;
-
-    // ===================== NAV ============================
-    function showPage(pageId) {
-        pages.forEach(p => p.classList.toggle("active", p.id === pageId));
-        tabButtons.forEach(btn => {
-            const target = btn.dataset.target;
-            btn.classList.toggle("active", target === pageId);
-        });
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    tabButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            const target = btn.dataset.target;
-            if (btn.disabled) return;
-            if (target === "page-admin" && !adminUnlocked) {
-                const pwd = prompt("Nhập mật khẩu Admin (do giáo viên cung cấp):");
-                if (pwd !== ADMIN_PASSWORD) {
-                    alert("Mật khẩu không đúng. Vui lòng liên hệ giáo viên phụ trách.");
-                    return;
-                }
-                adminUnlocked = true;
+// Meta cho từng nhóm
+const riasecMeta = {
+    R: {
+        code: "R",
+        name: "Realistic – Thực tế",
+        desc: "Nhóm R yêu thích hoạt động thực tế, máy móc, kỹ thuật, thích “làm” hơn là chỉ nói.",
+        traits: [
+            "Thích sửa chữa, lắp ráp, vận hành thiết bị",
+            "Ưa chuộng môi trường làm việc thực tế, ít giấy tờ",
+            "Thường kiên nhẫn, tỉ mỉ khi thao tác trên vật dụng, máy móc"
+        ],
+        careers: [
+            "Kỹ thuật cơ khí",
+            "Kỹ thuật điện – điện tử",
+            "Công nghệ ô tô",
+            "Kỹ thuật xây dựng",
+            "Kỹ thuật điều khiển & tự động hóa",
+            "Kỹ thuật viễn thông",
+            "Kỹ thuật công trình giao thông",
+            "Kỹ thuật năng lượng",
+            "Quản lý công nghiệp (hướng kỹ thuật)",
+            "Kỹ thuật môi trường"
+        ],
+        pathways: [
+            {
+                track: "Khối A / A1",
+                majors: ["Kỹ thuật cơ khí", "Kỹ thuật điện – điện tử", "Công nghệ ô tô"],
+                schools: ["ĐH Bách Khoa HN", "ĐH Bách Khoa TP.HCM", "ĐH Giao thông Vận tải"]
             }
-            showPage(target);
-        });
+        ]
+    },
+    I: {
+        code: "I",
+        name: "Investigative – Nghiên cứu",
+        desc: "Nhóm I thích phân tích, nghiên cứu, tìm hiểu bản chất sự vật, sự việc.",
+        traits: [
+            "Thích đặt câu hỏi “vì sao?”, “như thế nào?”",
+            "Ưa suy luận logic, làm việc với số liệu, mô hình",
+            "Thường kiên trì trong việc tìm lời giải cho vấn đề khó"
+        ],
+        careers: [
+            "Khoa học máy tính",
+            "Kỹ thuật phần mềm",
+            "Khoa học dữ liệu",
+            "Khoa học vật liệu",
+            "Công nghệ sinh học",
+            "Y khoa, Dược học",
+            "Toán ứng dụng",
+            "Vật lý kỹ thuật",
+            "Phân tích dữ liệu (Data Analyst)",
+            "Trí tuệ nhân tạo (AI Engineer – lộ trình dài hạn)"
+        ],
+        pathways: [
+            {
+                track: "Khối A / A1 / D",
+                majors: ["Khoa học máy tính", "Khoa học dữ liệu", "Kỹ thuật phần mềm"],
+                schools: ["ĐH Công nghệ – ĐHQG HN", "ĐH CNTT – ĐHQG HCM", "ĐH FPT"]
+            }
+        ]
+    },
+    A: {
+        code: "A",
+        name: "Artistic – Nghệ thuật",
+        desc: "Nhóm A yêu thích sự sáng tạo, tự do thể hiện ý tưởng, cảm xúc qua nhiều hình thức.",
+        traits: [
+            "Nhạy cảm với màu sắc, âm thanh, hình ảnh, ngôn từ",
+            "Không thích bị bó buộc bởi quy tắc cứng nhắc",
+            "Thường có nhiều ý tưởng mới, độc đáo"
+        ],
+        careers: [
+            "Thiết kế đồ họa",
+            "Thiết kế thời trang",
+            "Kiến trúc",
+            "Truyền thông đa phương tiện",
+            "Marketing sáng tạo",
+            "Sản xuất nội dung (Content Creator)",
+            "Đạo diễn, dựng phim",
+            "Âm nhạc, biểu diễn nghệ thuật",
+            "Thiết kế UI/UX",
+            "Copywriter"
+        ],
+        pathways: [
+            {
+                track: "Khối V / H / D",
+                majors: ["Kiến trúc", "Thiết kế đồ họa", "Truyền thông đa phương tiện"],
+                schools: ["ĐH Kiến trúc HN/HCM", "ĐH Mỹ thuật CN", "ĐH Văn Lang", "RMIT (Design)"]
+            }
+        ]
+    },
+    S: {
+        code: "S",
+        name: "Social – Xã hội",
+        desc: "Nhóm S yêu thích làm việc với con người, giúp đỡ, hỗ trợ và kết nối cộng đồng.",
+        traits: [
+            "Dễ đồng cảm, biết lắng nghe và chia sẻ",
+            "Thích giảng giải, hướng dẫn, hỗ trợ người khác",
+            "Thường tham gia các hoạt động đội nhóm, tình nguyện"
+        ],
+        careers: [
+            "Giáo viên, giảng viên",
+            "Tâm lý học, tham vấn học đường",
+            "Công tác xã hội",
+            "Quản lý giáo dục",
+            "Điều dưỡng, y tá",
+            "Nhân sự (HR)",
+            "Đào tạo & phát triển (L&D)",
+            "Tư vấn viên giáo dục, hướng nghiệp",
+            "Chuyên viên dịch vụ khách hàng",
+            "Huấn luyện viên, coach"
+        ],
+        pathways: [
+            {
+                track: "Khối C / D / B",
+                majors: ["Tâm lý học", "Công tác xã hội", "Sư phạm"],
+                schools: ["ĐH KHXH&NV", "ĐH Sư phạm", "Học viện Phụ nữ VN"]
+            }
+        ]
+    },
+    E: {
+        code: "E",
+        name: "Enterprising – Doanh nghiệp",
+        desc: "Nhóm E thích lãnh đạo, kinh doanh, thuyết phục và tạo ảnh hưởng.",
+        traits: [
+            "Tự tin, dám đứng ra chịu trách nhiệm",
+            "Thích thuyết trình, đàm phán, thương lượng",
+            "Hứng thú với kinh doanh, khởi nghiệp, quản lý"
+        ],
+        careers: [
+            "Quản trị kinh doanh",
+            "Marketing",
+            "Tài chính – Ngân hàng",
+            "Kinh doanh quốc tế",
+            "Logistics & Supply Chain",
+            "Quản trị nhân lực",
+            "Bất động sản",
+            "Sales B2B/B2C",
+            "Khởi nghiệp (Startup)",
+            "Quản lý dự án"
+        ],
+        pathways: [
+            {
+                track: "Khối A / D",
+                majors: ["Quản trị kinh doanh", "Marketing", "Tài chính – Ngân hàng"],
+                schools: ["ĐH Kinh tế Quốc dân", "FTU", "UEH", "NEU", "ĐH Kinh tế – ĐHQG HCM"]
+            }
+        ]
+    },
+    C: {
+        code: "C",
+        name: "Conventional – Truyền thống",
+        desc: "Nhóm C yêu thích sự ổn định, trật tự, quy trình và công việc có cấu trúc rõ ràng.",
+        traits: [
+            "Chú trọng chi tiết, cẩn thận, chính xác",
+            "Thích làm việc với số liệu, hồ sơ, hệ thống",
+            "Ưa môi trường có quy định, quy trình ổn định"
+        ],
+        careers: [
+            "Kế toán – Kiểm toán",
+            "Tài chính – Thuế",
+            "Ngân hàng (nghiệp vụ)",
+            "Thư ký, trợ lý",
+            "Quản trị văn phòng",
+            "Chuyên viên hành chính – nhân sự",
+            "Chuyên viên dữ liệu, quản trị hệ thống",
+            "Thống kê",
+            "Phân tích nghiệp vụ (Business Analyst – lộ trình dài hạn)",
+            "Quản lý hồ sơ, lưu trữ"
+        ],
+        pathways: [
+            {
+                track: "Khối A / D",
+                majors: ["Kế toán", "Tài chính – Ngân hàng", "Quản trị văn phòng"],
+                schools: ["Học viện Tài chính", "HV Ngân hàng", "UEH", "NEU"]
+            }
+        ]
+    }
+};
+
+// ==============================
+// DOM Helpers & Initialization
+// ==============================
+
+const navTabs = document.querySelectorAll(".nav-tab");
+const sections = document.querySelectorAll(".section");
+
+const studentNameInput = document.getElementById("student-name");
+const studentClassInput = document.getElementById("student-class");
+const studentIdInput = document.getElementById("student-id");
+const studentEmailInput = document.getElementById("student-email");
+
+const questionsContainer = document.getElementById("questions-container");
+const progressCount = document.getElementById("progress-count");
+const progressPercent = document.getElementById("progress-percent");
+const progressBar = document.getElementById("progress-bar");
+const progressBarBg = document.getElementById("progress-bar-bg");
+
+const submitBtn = document.getElementById("submit-btn");
+const resetBtn = document.getElementById("reset-btn");
+
+const noResultMessage = document.getElementById("no-result-message");
+const resultContent = document.getElementById("result-content");
+const resultStudentInfo = document.getElementById("result-student-info");
+const resultCodeEl = document.getElementById("result-code");
+const resultOverallEl = document.getElementById("result-overall");
+const top3Container = document.getElementById("top3-container");
+const riasecDetails = document.getElementById("riasec-details");
+
+const saveLocalBtn = document.getElementById("save-local-btn");
+const downloadTxtBtn = document.getElementById("download-txt-btn");
+const sendGithubBtn = document.getElementById("send-github-btn");
+
+const adminLocked = document.getElementById("admin-locked");
+const adminContent = document.getElementById("admin-content");
+const adminPwInput = document.getElementById("admin-password-input");
+const adminLoginBtn = document.getElementById("admin-login-btn");
+
+const historyTableBody = document.getElementById("history-table-body");
+const filterClassInput = document.getElementById("filter-class");
+const filterFromInput = document.getElementById("filter-from");
+const filterToInput = document.getElementById("filter-to");
+const applyFilterBtn = document.getElementById("apply-filter-btn");
+const clearFilterBtn = document.getElementById("clear-filter-btn");
+const exportCsvBtn = document.getElementById("export-csv-btn");
+const clearHistoryBtn = document.getElementById("clear-history-btn");
+
+const ghOwnerInput = document.getElementById("gh-owner");
+const ghRepoInput = document.getElementById("gh-repo");
+const ghTokenInput = document.getElementById("gh-token");
+const ghPassphraseInput = document.getElementById("gh-passphrase");
+const saveGhConfigBtn = document.getElementById("save-gh-config-btn");
+const clearGhConfigBtn = document.getElementById("clear-gh-config-btn");
+const ghConfigStatus = document.getElementById("gh-config-status");
+
+// ==============================
+// Utility Functions
+// ==============================
+
+function sanitizeInput(str) {
+    if (!str) return "";
+    return str.trim().replace(/[<>]/g, "").slice(0, 200);
+}
+
+function validateEmail(email) {
+    if (!email) return true; // cho phép bỏ trống
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function ensureStudentInfo() {
+    const name = studentNameInput.value.trim();
+    const cls = studentClassInput.value.trim();
+    const email = studentEmailInput.value.trim();
+
+    if (!name) {
+        alert("Vui lòng nhập Họ và tên trước khi xem kết quả.");
+        studentNameInput.focus();
+        return false;
+    }
+    if (!cls) {
+        alert("Vui lòng nhập Lớp trước khi xem kết quả.");
+        studentClassInput.focus();
+        return false;
+    }
+    if (email && !validateEmail(email)) {
+        alert("Email không hợp lệ. Vui lòng kiểm tra lại.");
+        studentEmailInput.focus();
+        return false;
+    }
+    return true;
+}
+
+function getAnsweredCount() {
+    let count = 0;
+    questions.forEach(q => {
+        const checked = document.querySelector(`input[name="q${q.id}"]:checked`);
+        if (checked) count++;
     });
+    return count;
+}
 
-    // ===================== QUESTIONS ============================
-    function getTypeLabel(type) {
-        const meta = riasecMeta[type];
-        return `${meta.code} – ${meta.shortName}`;
-    }
+function encodeBase64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+}
 
-    function renderQuestions() {
-        questions.forEach(q => {
-            const wrapper = document.createElement("div");
-            wrapper.className = "question-item";
-            wrapper.dataset.questionId = q.id.toString();
-            wrapper.dataset.type = q.type;
+function decodeBase64(str) {
+    return decodeURIComponent(escape(atob(str)));
+}
 
-            const optionsHtml = [1, 2, 3, 4, 5].map(v => {
-                const id = `q${q.id}_opt${v}`;
-                let labelText, labelShort;
-                if (v === 1) { labelText = "Hoàn toàn không đồng ý"; labelShort = "1"; }
-                else if (v === 2) { labelText = "Không đồng ý"; labelShort = "2"; }
-                else if (v === 3) { labelText = "Phân vân"; labelShort = "3"; }
-                else if (v === 4) { labelText = "Đồng ý"; labelShort = "4"; }
-                else { labelText = "Rất đồng ý"; labelShort = "5"; }
-                return `
-                    <div class="option-pill">
-                        <input type="radio" id="${id}" name="q${q.id}" value="${v}">
-                        <label for="${id}">
-                            ${labelShort}
-                            <small>${labelText}</small>
-                        </label>
-                    </div>
-                `;
-            }).join("");
+function formatDateTime(dtStr) {
+    const dt = new Date(dtStr);
+    if (Number.isNaN(dt.getTime())) return dtStr;
+    return dt.toLocaleString("vi-VN");
+}
 
-            wrapper.innerHTML = `
-                <div class="question-top">
-                    <div>
-                        <div class="question-label">Câu ${q.id}</div>
-                        <div class="question-text">${q.text}</div>
-                    </div>
-                    <div class="question-tag">${getTypeLabel(q.type)}</div>
-                </div>
-                <div class="options-row">
-                    ${optionsHtml}
-                </div>
-            `;
-            questionsContainer.appendChild(wrapper);
-        });
-    }
+// ==============================
+// Draft Autosave
+// ==============================
 
-    renderQuestions();
-
-    // ===================== PROGRESS ============================
-    function getAnsweredCount() {
-        let count = 0;
-        for (const q of questions) {
-            const checked = document.querySelector(`input[name="q${q.id}"]:checked`);
-            if (checked) count++;
-        }
-        return count;
-    }
-
-    function updateProgress() {
-        const answered = getAnsweredCount();
-        const total = questions.length;
-        const percent = Math.round((answered / total) * 100);
-
-        progressText.textContent = `Đã hoàn thành: ${answered}/${total} câu`;
-        progressPercent.textContent = `${percent}%`;
-        progressBar.style.width = `${percent}%`;
-
-        questions.forEach(q => {
-            const block = document.querySelector(`.question-item[data-question-id="${q.id}"]`);
-            const checked = document.querySelector(`input[name="q${q.id}"]:checked`);
-            if (block) block.classList.toggle("answered", !!checked);
-        });
-
-        if (answered === total) {
-            submitBtn.disabled = false;
-            warningText.style.display = "none";
-        } else {
-            submitBtn.disabled = true;
-        }
-    }
-
-    questionsContainer.addEventListener("change", (e) => {
-        if (e.target && e.target.matches("input[type='radio']")) {
-            updateProgress();
-        }
+function saveDraft() {
+    const draft = {};
+    questions.forEach(q => {
+        const checked = document.querySelector(`input[name="q${q.id}"]:checked`);
+        if (checked) draft[q.id] = checked.value;
     });
-
-    // ===================== SCORE & CHARTS ============================
-    function computeScores() {
-        const scores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
-        for (const q of questions) {
-            const checked = document.querySelector(`input[name="q${q.id}"]:checked`);
-            if (checked) {
-                const value = parseInt(checked.value, 10) || 0;
-                scores[q.type] += value;
-            }
-        }
-        return scores;
+    try {
+        localStorage.setItem(STORAGE_KEYS.DRAFT, JSON.stringify(draft));
+    } catch (e) {
+        console.error("Không thể lưu bản nháp:", e);
     }
+}
 
-    function renderCharts(scores) {
-        const labels = ["R", "I", "A", "S", "E", "C"];
-        const data = labels.map(code => scores[code]);
-
-        const barCtx = document.getElementById("barChart").getContext("2d");
-        const radarCtx = document.getElementById("radarChart").getContext("2d");
-
-        if (barChart) barChart.destroy();
-        if (radarChart) radarChart.destroy();
-
-        barChart = new Chart(barCtx, {
-            type: "bar",
-            data: {
-                labels,
-                datasets: [{ label: "Điểm từng nhóm", data }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true, suggestedMax: 50 }
-                },
-                plugins: { legend: { display: false } }
-            }
+function loadDraft() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.DRAFT);
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        Object.entries(draft).forEach(([id, val]) => {
+            const radio = document.querySelector(`input[name="q${id}"][value="${val}"]`);
+            if (radio) radio.checked = true;
         });
-
-        radarChart = new Chart(radarCtx, {
-            type: "radar",
-            data: {
-                labels,
-                datasets: [{ label: "Hồ sơ RIASEC", data }]
-            },
-            options: {
-                responsive: true,
-                scales: { r: { beginAtZero: true, suggestedMax: 50 } }
-            }
-        });
+        updateProgress();
+    } catch (e) {
+        console.error("Không thể tải bản nháp:", e);
     }
+}
 
-    function renderTop3AndCareers(scores) {
-        const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-        const top3 = entries.slice(0, 3);
-        const codeString = top3.map(([code]) => code).join("");
+function clearDraft() {
+    try {
+        localStorage.removeItem(STORAGE_KEYS.DRAFT);
+    } catch (e) {
+        console.error("Không thể xóa draft:", e);
+    }
+}
 
-        resultCodePill.textContent = `Mã nổi bật (Top 3): ${codeString}`;
+// ==============================
+// Rendering: Questions & Progress
+// ==============================
 
-        top3Container.innerHTML = "";
-        top3.forEach(([code, score], index) => {
-            const meta = riasecMeta[code];
-            const rankIcon = index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉";
-            const div = document.createElement("div");
-            div.className = "top3-item";
-            div.innerHTML = `
-                <div><strong>${rankIcon} ${meta.name}</strong> (mã: ${meta.code}) – Điểm: ${score}</div>
-                <div class="small-muted">${meta.desc}</div>
-            `;
-            top3Container.appendChild(div);
-        });
+function renderQuestions() {
+    questionsContainer.innerHTML = "";
+    questions.forEach(q => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "question-item";
 
-        careersContainer.innerHTML = "";
-        const careersBlock = document.createElement("div");
-        careersBlock.innerHTML = `<strong>Gợi ý ngành học & nghề nghiệp theo top 3 nhóm:</strong>`;
-        top3.forEach(([code]) => {
-            const meta = riasecMeta[code];
-            const title = document.createElement("div");
-            title.style.marginTop = "8px";
-            title.innerHTML = `<em>${meta.name}:</em>`;
-            const list = document.createElement("ul");
-            meta.careers.forEach(c => {
-                const li = document.createElement("li");
-                li.textContent = c;
-                list.appendChild(li);
+        const textEl = document.createElement("div");
+        textEl.className = "question-text";
+        textEl.textContent = `${q.id}. ${q.text}`;
+        wrapper.appendChild(textEl);
+
+        const optionsRow = document.createElement("div");
+        optionsRow.className = "options-row";
+
+        const labels = [
+            "Hoàn toàn không đồng ý",
+            "Không đồng ý",
+            "Phân vân",
+            "Đồng ý",
+            "Rất đồng ý"
+        ];
+
+        for (let value = 1; value <= 5; value++) {
+            const pill = document.createElement("label");
+            pill.className = "option-pill";
+
+            const input = document.createElement("input");
+            input.type = "radio";
+            input.name = `q${q.id}`;
+            input.value = String(value);
+
+            input.addEventListener("change", () => {
+                updateProgress();
+                saveDraft();
             });
-            careersBlock.appendChild(title);
-            careersBlock.appendChild(list);
-        });
-        careersContainer.appendChild(careersBlock);
 
-        const topCodes = top3.map(([c]) => c);
-        riasecDetailGrid.innerHTML = "";
-        ["R", "I", "A", "S", "E", "C"].forEach(code => {
-            const meta = riasecMeta[code];
-            const card = document.createElement("div");
-            card.className = "riasec-detail-card";
-            if (topCodes.includes(code)) card.classList.add("highlight");
-            card.innerHTML = `
-                <h4><span class="riasec-code">${meta.code}</span><span class="riasec-name">${meta.shortName}</span></h4>
-                <p class="riasec-desc">${meta.desc}</p>
-            `;
-            riasecDetailGrid.appendChild(card);
-        });
+            pill.appendChild(input);
+            const span = document.createElement("span");
+            span.textContent = `${value} – ${labels[value - 1]}`;
+            pill.appendChild(span);
 
-        const top1Code = top3[0][0];
-        const mainEval = evalByType[top1Code] || "";
-        const comboCodes = top3.map(([c]) => c).join(" – ");
-        overallEval.textContent =
-            mainEval +
-            ` Nhìn chung, mã RIASEC nổi bật của bạn là ${codeString} (${comboCodes}). Hãy ưu tiên tìm hiểu kỹ các ngành thuộc những nhóm này khi chọn khối, chọn ngành học.`;
+            optionsRow.appendChild(pill);
+        }
 
-        const sName = studentNameInput.value.trim() || "Chưa rõ họ tên";
-        const sClass = studentClassInput.value.trim() || "Chưa rõ lớp";
-        const sId = studentIdInput.value.trim() || "Chưa rõ mã HS";
-        const sEmail = studentEmailInput.value.trim() || "Chưa rõ email";
-        summaryStudentInfo.textContent = `${sName} – Lớp: ${sClass} – Mã HS: ${sId} – Mã RIASEC: ${codeString}`;
+        wrapper.appendChild(optionsRow);
+        questionsContainer.appendChild(wrapper);
+    });
+}
 
-        lastResult = {
-            timestamp: new Date().toISOString(),
-            studentName: sName,
-            studentClass: sClass,
-            studentId: sId,
-            studentEmail: sEmail,
-            scores,
-            top3,
-            codeString
+function updateProgress() {
+    const answered = getAnsweredCount();
+    const total = questions.length;
+    const percent = Math.round((answered / total) * 100);
+
+    progressCount.textContent = `Đã hoàn thành: ${answered}/${total} câu`;
+    progressPercent.textContent = `${percent}%`;
+    progressBar.style.width = `${percent}%`;
+    if (progressBarBg) {
+        progressBarBg.setAttribute("aria-valuenow", String(percent));
+    }
+
+    submitBtn.disabled = answered < total;
+}
+
+// ==============================
+// Scoring & Results
+// ==============================
+
+function calculateScores() {
+    const scores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+    questions.forEach(q => {
+        const checked = document.querySelector(`input[name="q${q.id}"]:checked`);
+        if (checked) {
+            const v = parseInt(checked.value, 10) || 0;
+            scores[q.type] += v;
+        }
+    });
+    return scores;
+}
+
+function calculateConfidence(scores) {
+    const values = Object.values(scores).sort((a, b) => b - a);
+    if (values.length < 2) return { level: "Không xác định", note: "" };
+    const gap = values[0] - values[1];
+
+    if (gap > 10) {
+        return {
+            level: "Cao",
+            note: "Nhóm tính cách nổi bật khá rõ ràng so với nhóm đứng thứ 2."
         };
     }
-
-    function ensureStudentInfo() {
-        const name = studentNameInput.value.trim();
-        const cls = studentClassInput.value.trim();
-        if (!name) {
-            alert("Vui lòng nhập Họ và tên trước khi xem kết quả.");
-            studentNameInput.focus();
-            return false;
-        }
-        if (!cls) {
-            alert("Vui lòng nhập Lớp trước khi xem kết quả.");
-            studentClassInput.focus();
-            return false;
-        }
-        return true;
+    if (gap > 5) {
+        return {
+            level: "Trung bình",
+            note: "Có xu hướng nổi bật nhưng vẫn gần với nhóm đứng thứ 2."
+        };
     }
+    return {
+        level: "Thấp",
+        note: "Các nhóm tính cách khá cân bằng, nên kết hợp thêm quan sát thực tế & trao đổi với thầy cô, phụ huynh."
+    };
+}
 
-    function showResultsPage() {
-        const scores = computeScores();
-        renderCharts(scores);
-        renderTop3AndCareers(scores);
-        navResults.disabled = false;
-        showPage("page-results");
-        refreshHistoryTable();
+function buildResultObject(scores) {
+    const now = new Date().toISOString();
 
-        // ✅ Auto-save lên GitHub nếu có cấu hình
-        autoSendResultToGithub();
-    }
+    // Sắp xếp nhóm theo điểm
+    const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    const top3 = entries.slice(0, 3);
+    const codeTop3 = top3.map(([k]) => k).join("");
+    const confidence = calculateConfidence(scores);
 
-    submitBtn.addEventListener("click", () => {
-        const answered = getAnsweredCount();
-        if (answered !== questions.length) {
-            warningText.style.display = "block";
-            return;
-        }
-        warningText.style.display = "none";
+    const name = sanitizeInput(studentNameInput.value);
+    const cls = sanitizeInput(studentClassInput.value);
+    const sid = sanitizeInput(studentIdInput.value);
+    const email = sanitizeInput(studentEmailInput.value);
 
-        if (!ensureStudentInfo()) return;
-        showResultsPage();
-    });
+    return {
+        timestamp: now,
+        student: {
+            name,
+            class: cls,
+            id: sid,
+            email
+        },
+        scores,
+        top3,
+        codeTop3,
+        confidence
+    };
+}
 
-    // ===================== RESET / RETAKE ============================
-    function resetAnswers() {
-        const radios = document.querySelectorAll("#quiz-form input[type='radio']");
-        radios.forEach(r => { r.checked = false; });
-        document.querySelectorAll(".question-item").forEach(q => q.classList.remove("answered"));
-        updateProgress();
-        lastResult = null;
-        resultCodePill.textContent = "Mã nổi bật (Top 3): —";
-        top3Container.innerHTML = "";
-        careersContainer.innerHTML = "";
-        riasecDetailGrid.innerHTML = "";
-        overallEval.textContent = "Bạn hãy hoàn thành bài trắc nghiệm để xem phần đánh giá tổng quan.";
-        summaryStudentInfo.textContent = "Chưa có họ tên/lớp";
-    }
+function renderCharts(scores) {
+    const ctxBar = document.getElementById("bar-chart");
+    const ctxRadar = document.getElementById("radar-chart");
 
-    resetBtn.addEventListener("click", () => {
-        resetAnswers();
-        showPage("page-quiz");
-    });
+    const labels = ["R", "I", "A", "S", "E", "C"];
+    const data = labels.map(k => scores[k]);
 
-    retakeBtn.addEventListener("click", () => {
-        resetAnswers();
-        showPage("page-quiz");
-    });
+    if (barChart) barChart.destroy();
+    if (radarChart) radarChart.destroy();
 
-    backToQuizBtn.addEventListener("click", () => {
-        showPage("page-quiz");
-    });
-
-    // ===================== LOCAL STORAGE HISTORY ======================
-    const STORAGE_KEY = "riasecResults";
-
-    function loadHistory() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return [];
-            return JSON.parse(raw) || [];
-        } catch {
-            return [];
-        }
-    }
-
-    function saveHistory(arr) {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
-        } catch (e) {
-            console.error("Error saving history:", e);
-        }
-    }
-
-    function getFilteredHistory() {
-        const history = loadHistory();
-        const classFilter = (filterClassInput?.value || "").trim().toLowerCase();
-        const fromDateStr = filterFromDateInput?.value || "";
-        const toDateStr = filterToDateInput?.value || "";
-
-        return history.filter(item => {
-            let ok = true;
-
-            if (classFilter) {
-                const cls = (item.studentClass || "").toLowerCase();
-                if (!cls.includes(classFilter)) ok = false;
+    barChart = new Chart(ctxBar, {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [{
+                label: "Điểm RIASEC",
+                data
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
             }
+        }
+    });
 
-            if (fromDateStr) {
-                const from = new Date(fromDateStr);
-                const t = new Date(item.timestamp);
-                if (t < from) ok = false;
+    radarChart = new Chart(ctxRadar, {
+        type: "radar",
+        data: {
+            labels,
+            datasets: [{
+                label: "Hồ sơ RIASEC",
+                data
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                r: { beginAtZero: true }
             }
+        }
+    });
+}
 
-            if (toDateStr) {
-                const to = new Date(toDateStr);
-                to.setDate(to.getDate() + 1);
-                const t = new Date(item.timestamp);
-                if (t >= to) ok = false;
-            }
+function renderResultUI(result) {
+    const { student, scores, top3, codeTop3, confidence } = result;
 
-            return ok;
+    noResultMessage.classList.add("hidden");
+    resultContent.classList.remove("hidden");
+
+    const infoParts = [];
+    if (student.name) infoParts.push(student.name);
+    if (student.class) infoParts.push(`Lớp ${student.class}`);
+    if (student.id) infoParts.push(`Mã HS: ${student.id}`);
+    if (student.email) infoParts.push(student.email);
+
+    resultStudentInfo.textContent = infoParts.join(" · ") || "Thông tin học sinh chưa được điền đầy đủ.";
+
+    const codeReadable = top3.map(([k]) => riasecMeta[k].name.split("–")[0].trim()).join(" – ");
+    resultCodeEl.textContent = `Mã RIASEC nổi bật: ${codeTop3} (${codeReadable})`;
+
+    const scoresText = Object.entries(scores)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(" · ");
+    resultOverallEl.textContent =
+        `Tổng điểm các nhóm: ${scoresText}. ` +
+        `Độ phân biệt kết quả: ${confidence.level}. ${confidence.note}`;
+
+    renderCharts(scores);
+
+    // Top 3 chi tiết
+    top3Container.innerHTML = "";
+    top3.forEach(([k, v], idx) => {
+        const meta = riasecMeta[k];
+        const item = document.createElement("div");
+        item.className = "top3-item";
+        item.innerHTML = `
+            <div class="top3-item-title">#${idx + 1} – ${meta.name} (${k}) – ${v} điểm</div>
+            <div class="small-muted">${meta.desc}</div>
+        `;
+        top3Container.appendChild(item);
+    });
+
+    // Mô tả đầy đủ 6 nhóm
+    riasecDetails.innerHTML = "";
+    ["R", "I", "A", "S", "E", "C"].forEach(code => {
+        const meta = riasecMeta[code];
+        const block = document.createElement("div");
+        block.className = "riasec-detail-block";
+
+        const title = document.createElement("div");
+        title.innerHTML = `<span class="riasec-code-tag">${code}</span> <strong>${meta.name}</strong>`;
+        block.appendChild(title);
+
+        const desc = document.createElement("div");
+        desc.className = "small-muted";
+        desc.textContent = meta.desc;
+        block.appendChild(desc);
+
+        const traits = document.createElement("ul");
+        traits.className = "checklist";
+        meta.traits.forEach(t => {
+            const li = document.createElement("li");
+            li.textContent = t;
+            traits.appendChild(li);
         });
-    }
+        block.appendChild(traits);
 
-    function refreshHistoryTable() {
-        const history = getFilteredHistory();
-        historyBody.innerHTML = "";
+        const careersTitle = document.createElement("div");
+        careersTitle.style.marginTop = "4px";
+        careersTitle.innerHTML = "<strong>Ngành nghề gợi ý:</strong>";
+        block.appendChild(careersTitle);
 
-        if (!history.length) {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `<td colspan="6">Không có dữ liệu lịch sử phù hợp với điều kiện lọc.</td>`;
-            historyBody.appendChild(tr);
-            return;
-        }
+        const careersList = document.createElement("div");
+        careersList.className = "small-muted";
+        careersList.textContent = meta.careers.join(", ");
+        block.appendChild(careersList);
 
-        history.forEach(item => {
-            const tr = document.createElement("tr");
-            const dateStr = new Date(item.timestamp).toLocaleString("vi-VN");
-            tr.innerHTML = `
-                <td>${dateStr}</td>
-                <td>${item.studentName || ""}</td>
-                <td>${item.studentClass || ""}</td>
-                <td>${item.studentId || ""}</td>
-                <td>${item.studentEmail || ""}</td>
-                <td>${item.codeString || ""}</td>
-            `;
-            historyBody.appendChild(tr);
-        });
-    }
+        if (meta.pathways && meta.pathways.length) {
+            const pwTitle = document.createElement("div");
+            pwTitle.style.marginTop = "4px";
+            pwTitle.innerHTML = "<strong>Lộ trình tham khảo:</strong>";
+            block.appendChild(pwTitle);
 
-    saveLocalBtn.addEventListener("click", () => {
-        if (!lastResult) {
-            alert("Bạn cần hoàn thành bài test và xem kết quả trước khi lưu.");
-            return;
-        }
-        const history = loadHistory();
-        history.unshift(lastResult);
-        saveHistory(history);
-        refreshHistoryTable();
-        alert("Đã lưu kết quả vào lịch sử trên máy.");
-    });
-
-    // ===================== DOWNLOAD TXT ============================
-    function buildResultText(result) {
-        const { studentName, studentClass, studentId, studentEmail, codeString, scores, top3 } = result;
-        const dateStr = new Date(result.timestamp).toLocaleString("vi-VN");
-
-        let text = "";
-        text += "KẾT QUẢ TRẮC NGHIỆM HOLLAND RIASEC\n";
-        text += "-----------------------------------\n";
-        text += `Họ tên: ${studentName}\n`;
-        text += `Lớp: ${studentClass}\n`;
-        text += `Mã học sinh: ${studentId}\n`;
-        text += `Email: ${studentEmail}\n`;
-        text += `Thời gian: ${dateStr}\n\n`;
-        text += `Mã RIASEC nổi bật (Top 3): ${codeString}\n\n`;
-        text += "Điểm từng nhóm:\n";
-        text += `R (Realistic – Thực tế): ${scores.R}\n`;
-        text += `I (Investigative – Nghiên cứu): ${scores.I}\n`;
-        text += `A (Artistic – Nghệ thuật): ${scores.A}\n`;
-        text += `S (Social – Xã hội): ${scores.S}\n`;
-        text += `E (Enterprising – Doanh nghiệp): ${scores.E}\n`;
-        text += `C (Conventional – Truyền thống): ${scores.C}\n\n`;
-
-        const top1 = top3[0][0];
-        text += "Đánh giá tổng quan:\n";
-        text += `${evalByType[top1] || ""}\n\n`;
-
-        text += "Gợi ý ngành học / nghề nghiệp nên tìm hiểu thêm:\n\n";
-        top3.forEach(([code]) => {
-            const meta = riasecMeta[code];
-            text += `- ${meta.name} (${meta.code}):\n`;
-            meta.careers.forEach(c => {
-                text += `  • ${c}\n`;
+            meta.pathways.forEach(pw => {
+                const div = document.createElement("div");
+                div.className = "small-muted";
+                div.textContent =
+                    `• ${pw.track}: ${pw.majors.join(", ")} – trường gợi ý: ${pw.schools.join(", ")}`;
+                block.appendChild(div);
             });
-            text += "\n";
-        });
-
-        text += "Lưu ý: Kết quả chỉ mang tính tham khảo. Hãy trao đổi thêm với phụ huynh, thầy cô hoặc chuyên gia hướng nghiệp.\n";
-        return text;
-    }
-
-    downloadTxtBtn.addEventListener("click", () => {
-        if (!lastResult) {
-            alert("Bạn cần hoàn thành bài test và xem kết quả trước khi tải file.");
-            return;
         }
-        const text = buildResultText(lastResult);
-        const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-        const url = URL.createObjectURL(blob);
 
-        const sName = (lastResult.studentName || "hoc_sinh").replace(/\s+/g, "_");
-        const fileName = `RIASEC_${sName}_${lastResult.codeString}.txt`;
+        riasecDetails.appendChild(block);
+    });
+}
 
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+// ==============================
+// History (localStorage)
+// ==============================
+
+function loadHistory() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.HISTORY);
+        if (!raw) return [];
+        return JSON.parse(raw);
+    } catch (e) {
+        console.error("Không thể tải lịch sử:", e);
+        return [];
+    }
+}
+
+function saveHistoryList(list) {
+    try {
+        localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(list));
+    } catch (e) {
+        console.error("Không thể lưu lịch sử:", e);
+    }
+}
+
+function appendHistory(result) {
+    const list = loadHistory();
+    list.push(result);
+    saveHistoryList(list);
+    renderHistoryTable(list);
+}
+
+function renderHistoryTable(list) {
+    historyTableBody.innerHTML = "";
+    list.forEach(item => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${formatDateTime(item.timestamp)}</td>
+            <td>${item.student?.name || ""}</td>
+            <td>${item.student?.class || ""}</td>
+            <td>${item.student?.id || ""}</td>
+            <td>${item.student?.email || ""}</td>
+            <td>${item.codeTop3 || ""}</td>
+        `;
+        historyTableBody.appendChild(tr);
+    });
+}
+
+function applyHistoryFilter() {
+    const list = loadHistory();
+    const cls = filterClassInput.value.trim().toLowerCase();
+    const from = filterFromInput.value;
+    const to = filterToInput.value;
+
+    const filtered = list.filter(item => {
+        let ok = true;
+        if (cls) {
+            ok = ok && (item.student?.class || "").toLowerCase().includes(cls);
+        }
+        if (from) {
+            ok = ok && item.timestamp >= from;
+        }
+        if (to) {
+            // include the whole day by adding 'T23:59:59'
+            ok = ok && item.timestamp <= `${to}T23:59:59`;
+        }
+        return ok;
     });
 
-    // ===================== PRINT ============================
-    printBtn.addEventListener("click", () => {
-        if (!lastResult) {
-            alert("Bạn cần hoàn thành bài test và xem kết quả trước khi in.");
-            return;
-        }
-        window.print();
+    renderHistoryTable(filtered);
+}
+
+function exportHistoryToCsv() {
+    const list = loadHistory();
+    if (!list.length) {
+        alert("Chưa có dữ liệu lịch sử để xuất.");
+        return;
+    }
+
+    const header = [
+        "timestamp",
+        "name",
+        "class",
+        "id",
+        "email",
+        "codeTop3",
+        "scores_R",
+        "scores_I",
+        "scores_A",
+        "scores_S",
+        "scores_E",
+        "scores_C"
+    ];
+
+    const rows = list.map(item => [
+        item.timestamp,
+        item.student?.name || "",
+        item.student?.class || "",
+        item.student?.id || "",
+        item.student?.email || "",
+        item.codeTop3 || "",
+        item.scores?.R ?? "",
+        item.scores?.I ?? "",
+        item.scores?.A ?? "",
+        item.scores?.S ?? "",
+        item.scores?.E ?? "",
+        item.scores?.C ?? ""
+    ]);
+
+    const lines = [header.join(",")].concat(rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")));
+    const csv = lines.join("\r\n");
+
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `riasec_history_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// ==============================
+// Download TXT
+// ==============================
+
+function buildResultText(result) {
+    const { student, scores, top3, codeTop3, confidence } = result;
+    const lines = [];
+
+    lines.push("KẾT QUẢ TRẮC NGHIỆM HOLLAND RIASEC");
+    lines.push("CBB & Family Career Center");
+    lines.push("----------------------------------------");
+    lines.push(`Thời gian: ${formatDateTime(result.timestamp)}`);
+    lines.push(`Họ tên: ${student.name || ""}`);
+    lines.push(`Lớp: ${student.class || ""}`);
+    lines.push(`Mã HS: ${student.id || ""}`);
+    lines.push(`Email: ${student.email || ""}`);
+    lines.push("");
+
+    lines.push(`Mã RIASEC nổi bật: ${codeTop3}`);
+    const scoresText = Object.entries(scores).map(([k, v]) => `${k}: ${v}`).join(" | ");
+    lines.push(`Tổng điểm các nhóm: ${scoresText}`);
+    lines.push(`Độ phân biệt kết quả: ${confidence.level} – ${confidence.note}`);
+    lines.push("");
+
+    lines.push("Top 3 nhóm tính cách:");
+    top3.forEach(([k, v], idx) => {
+        const meta = riasecMeta[k];
+        lines.push(`#${idx + 1} – ${meta.name} (${k}) – ${v} điểm`);
+        lines.push(`  Mô tả: ${meta.desc}`);
+        lines.push("");
     });
 
-    // ===================== EXPORT CSV ======================
-    function buildCsv(history) {
-        const header = [
-            "Thời gian","Họ tên","Lớp","Mã_HS","Email",
-            "Mã_RIASEC","R","I","A","S","E","C"
-        ];
-        let csv = header.join(",") + "\n";
-
-        history.forEach(item => {
-            const scores = item.scores || {};
-            const row = [
-                new Date(item.timestamp).toLocaleString("vi-VN"),
-                item.studentName || "",
-                item.studentClass || "",
-                item.studentId || "",
-                item.studentEmail || "",
-                item.codeString || "",
-                scores.R ?? "",
-                scores.I ?? "",
-                scores.A ?? "",
-                scores.S ?? "",
-                scores.E ?? "",
-                scores.C ?? ""
-            ];
-            csv += row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",") + "\n";
-        });
-
-        return csv;
-    }
-
-    exportCsvBtn.addEventListener("click", () => {
-        const history = loadHistory();
-        if (!history.length) {
-            alert("Chưa có dữ liệu lịch sử để xuất.");
-            return;
-        }
-        const csv = buildCsv(history);
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "riasec_history.csv";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+    lines.push("Mô tả chi tiết 6 nhóm RIASEC và ngành nghề gợi ý:");
+    ["R", "I", "A", "S", "E", "C"].forEach(code => {
+        const meta = riasecMeta[code];
+        lines.push(`--- ${meta.name} (${code}) ---`);
+        lines.push(`Mô tả: ${meta.desc}`);
+        lines.push("Đặc điểm nổi bật:");
+        meta.traits.forEach(t => lines.push(`- ${t}`));
+        lines.push("Ngành nghề tham khảo:");
+        meta.careers.forEach(c => lines.push(`- ${c}`));
+        lines.push("");
     });
 
-    // ===================== FILTER ==========================
-    filterApplyBtn?.addEventListener("click", () => {
-        refreshHistoryTable();
+    lines.push("Lưu ý: Kết quả chỉ mang tính tham khảo định hướng. Hãy kết hợp với kết quả học tập, điều kiện gia đình");
+    lines.push("và trao đổi thêm với phụ huynh, giáo viên để đưa ra quyết định phù hợp.");
+    return lines.join("\r\n");
+}
+
+function downloadResultTxt(result) {
+    const text = buildResultText(result);
+    const blob = new Blob([text], { type: "text/plain;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    const safeName = (result.student.name || "riasec")
+        .replace(/[^\w\-]+/g, "_")
+        .slice(0, 40);
+
+    a.href = url;
+    a.download = `riasec_${safeName}_${result.timestamp.slice(0, 10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// ==============================
+// GitHub Config & Upload
+// ==============================
+
+function loadGhConfig() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.GH_CONFIG);
+        if (!raw) return null;
+        return JSON.parse(raw);
+    } catch (e) {
+        console.error("Không thể tải cấu hình GitHub:", e);
+        return null;
+    }
+}
+
+function saveGhConfig(cfg) {
+    try {
+        localStorage.setItem(STORAGE_KEYS.GH_CONFIG, JSON.stringify(cfg));
+        ghConfigStatus.textContent = "Đã lưu cấu hình GitHub trên máy này.";
+    } catch (e) {
+        console.error("Không thể lưu cấu hình GitHub:", e);
+        ghConfigStatus.textContent = "Không thể lưu cấu hình (localStorage lỗi).";
+    }
+}
+
+async function githubGetContent(owner, repo, path, token) {
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+    const res = await fetch(url, {
+        headers: {
+            "Accept": "application/vnd.github+json",
+            "Authorization": `Bearer ${token}`,
+            "X-GitHub-Api-Version": "2022-11-28"
+        }
     });
 
-    filterResetBtn?.addEventListener("click", () => {
-        if (filterClassInput) filterClassInput.value = "";
-        if (filterFromDateInput) filterFromDateInput.value = "";
-        if (filterToDateInput) filterToDateInput.value = "";
-        refreshHistoryTable();
-    });
-
-    // ===================== GITHUB CONFIG (LOCAL STORAGE) ====================
-    const GH_CONFIG_KEY = "riasecGithubConfig";
-
-    function loadGhConfig() {
-        try {
-            const raw = localStorage.getItem(GH_CONFIG_KEY);
-            if (!raw) return null;
-            return JSON.parse(raw);
-        } catch {
-            return null;
-        }
+    if (res.status === 404) {
+        return null; // file chưa tồn tại
     }
 
-    function saveGhConfig(cfg) {
-        try {
-            localStorage.setItem(GH_CONFIG_KEY, JSON.stringify(cfg));
-        } catch (e) {
-            console.error("Error saving GH config:", e);
-        }
+    if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(`GitHub GET failed: ${res.status} - ${txt}`);
     }
 
-    function applyGhConfigToForm() {
-        const cfg = loadGhConfig();
-        if (!cfg) return;
-        if (ghOwnerInput) ghOwnerInput.value = cfg.owner || "";
-        if (ghRepoInput) ghRepoInput.value = cfg.repo || "riasec-data-storage";
-        if (ghTokenInput) ghTokenInput.value = cfg.token || "";
-        if (ghPassphraseInput) ghPassphraseInput.value = cfg.passphrase || "";
-    }
+    return res.json();
+}
 
-    function hasValidGhConfig() {
-        const cfg = loadGhConfig();
-        return !!(cfg && cfg.owner && cfg.repo && cfg.token && cfg.passphrase);
-    }
+async function githubPutFile(owner, repo, path, token, contentText, shaPrev) {
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+    const maxRetries = 3;
 
-    ghSaveConfigBtn?.addEventListener("click", () => {
-        const owner = ghOwnerInput.value.trim();
-        const repo = ghRepoInput.value.trim();
-        const token = ghTokenInput.value.trim();
-        const passphrase = ghPassphraseInput.value.trim();
-
-        if (!owner || !repo || !token || !passphrase) {
-            alert("Vui lòng nhập đầy đủ Owner, Repo, Token và Passphrase.");
-            return;
-        }
-
-        saveGhConfig({ owner, repo, token, passphrase });
-        alert("Đã lưu cấu hình GitHub vào localStorage (chỉ trên máy này).");
-    });
-
-    ghClearConfigBtn?.addEventListener("click", () => {
-        localStorage.removeItem(GH_CONFIG_KEY);
-        if (ghOwnerInput) ghOwnerInput.value = "";
-        if (ghRepoInput) ghRepoInput.value = "riasec-data-storage";
-        if (ghTokenInput) ghTokenInput.value = "";
-        if (ghPassphraseInput) ghPassphraseInput.value = "";
-        alert("Đã xóa cấu hình GitHub khỏi máy này.");
-    });
-
-    // ===================== BASE64 HELPERS =============================
-    function encodeBase64(str) {
-        return btoa(unescape(encodeURIComponent(str)));
-    }
-
-    function decodeBase64(b64) {
-        try {
-            return decodeURIComponent(escape(atob(b64)));
-        } catch (e) {
-            console.error("Error decoding base64:", e);
-            return "";
-        }
-    }
-
-    // ===================== ENCRYPT RESULT (CryptoJS AES) =============
-    function encryptResultWithPassphrase(result, passphrase) {
-        const json = JSON.stringify(result);
-        return CryptoJS.AES.encrypt(json, passphrase).toString();
-    }
-
-    // ===================== GITHUB API (CONTENTS) =====================
-    async function githubGetFile(owner, repo, path, token) {
-        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-        const res = await fetch(url, {
-            headers: {
-                "Accept": "application/vnd.github+json",
-                "Authorization": `Bearer ${token}`,
-                "X-GitHub-Api-Version": "2022-11-28"
-            }
-        });
-
-        if (res.status === 404) {
-            return { exists: false, content: "", sha: null };
-        }
-
-        if (!res.ok) {
-            const txt = await res.text();
-            throw new Error(`GitHub GET failed: ${res.status} - ${txt}`);
-        }
-
-        const data = await res.json();
-        const text = data.content ? decodeBase64(data.content) : "";
-        return { exists: true, content: text, sha: data.sha };
-    }
-
-    async function githubPutFile(owner, repo, path, token, contentText, shaPrev) {
-        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
         const body = {
             message: "Append RIASEC result " + new Date().toISOString(),
             content: encodeBase64(contentText)
         };
         if (shaPrev) body.sha = shaPrev;
 
-        const res = await fetch(url, {
-            method: "PUT",
-            headers: {
-                "Accept": "application/vnd.github+json",
-                "Authorization": `Bearer ${token}`,
-                "X-GitHub-Api-Version": "2022-11-28",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(body)
-        });
+        try {
+            const res = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Accept": "application/vnd.github+json",
+                    "Authorization": `Bearer ${token}`,
+                    "X-GitHub-Api-Version": "2022-11-28",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body)
+            });
 
-        if (!res.ok) {
-            const txt = await res.text();
-            throw new Error(`GitHub PUT failed: ${res.status} - ${txt}`);
+            const remaining = res.headers.get("X-RateLimit-Remaining");
+            const resetTs = res.headers.get("X-RateLimit-Reset");
+
+            if (res.status === 403 && remaining === "0") {
+                console.warn(
+                    "[RIASEC] Hit GitHub rate limit. Reset at:",
+                    resetTs ? new Date(+resetTs * 1000).toLocaleString("vi-VN") : "unknown"
+                );
+                throw new Error("GitHub rate limit exceeded");
+            }
+
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(`GitHub PUT failed: ${res.status} - ${txt}`);
+            }
+
+            return await res.json();
+        } catch (e) {
+            if (attempt === maxRetries - 1) {
+                throw e;
+            }
+            await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
         }
+    }
+}
 
-        return await res.json();
+function encryptResultForGitHub(result, passphrase) {
+    const plain = JSON.stringify(result);
+    const cipher = CryptoJS.AES.encrypt(plain, passphrase).toString();
+    return cipher;
+}
+
+async function sendResultToGithub({ silentIfNoConfig = true, silentOnSuccess = true } = {}) {
+    const cfg = loadGhConfig();
+    if (!cfg || !cfg.owner || !cfg.repo || !cfg.token || !cfg.passphrase) {
+        if (!silentIfNoConfig) {
+            alert("Chưa cấu hình GitHub đầy đủ trong tab Admin (owner, repo, token, passphrase).");
+        }
+        return;
+    }
+    if (!lastResult) {
+        if (!silentIfNoConfig) {
+            alert("Chưa có kết quả để gửi lên GitHub.");
+        }
+        return;
     }
 
-    // ===================== SEND RESULT TO GITHUB ======================
-    async function sendResultToGithub(options = { silentIfNoConfig: false, silentOnSuccess: false }) {
-        const { silentIfNoConfig, silentOnSuccess } = options;
+    const owner = cfg.owner;
+    const repo = cfg.repo;
+    const token = cfg.token;
+    const passphrase = cfg.passphrase;
 
+    const today = new Date().toISOString().slice(0, 10);
+    const path = `data/riasec-${today}.jsonl`;
+
+    const cipher = encryptResultForGitHub(lastResult, passphrase);
+    const line = JSON.stringify({ ts: lastResult.timestamp, cipher }) + "\n";
+
+    // Đọc file hiện tại (nếu có) → append
+    let prevSha = null;
+    let newContentText = line;
+
+    try {
+        const existing = await githubGetContent(owner, repo, path, token);
+        if (existing && existing.content) {
+            const oldText = decodeBase64(existing.content);
+            newContentText = oldText + line;
+            prevSha = existing.sha;
+        }
+        await githubPutFile(owner, repo, path, token, newContentText, prevSha);
+        if (!silentOnSuccess) {
+            alert("Đã gửi kết quả lên GitHub (đã mã hóa).");
+        }
+    } catch (e) {
+        console.error("Lỗi khi gửi lên GitHub:", e);
+        if (!silentIfNoConfig) {
+            alert("Không thể gửi lên GitHub: " + e.message);
+        }
+    }
+}
+
+// ==============================
+// Navigation & Admin
+// ==============================
+
+navTabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+        navTabs.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const targetId = btn.dataset.target;
+        sections.forEach(sec => {
+            if (sec.id === targetId) sec.classList.add("visible");
+            else sec.classList.remove("visible");
+        });
+    });
+});
+
+adminLoginBtn.addEventListener("click", () => {
+    const pw = adminPwInput.value;
+    if (pw === ADMIN_PASSWORD) {
+        adminLocked.classList.add("hidden");
+        adminContent.classList.remove("hidden");
+    } else {
+        alert("Mật khẩu Admin không đúng.");
+    }
+});
+
+// History buttons
+applyFilterBtn.addEventListener("click", applyHistoryFilter);
+clearFilterBtn.addEventListener("click", () => {
+    filterClassInput.value = "";
+    filterFromInput.value = "";
+    filterToInput.value = "";
+    renderHistoryTable(loadHistory());
+});
+
+exportCsvBtn.addEventListener("click", exportHistoryToCsv);
+clearHistoryBtn.addEventListener("click", () => {
+    if (confirm("Bạn chắc chắn muốn xóa toàn bộ lịch sử trên máy này?")) {
+        saveHistoryList([]);
+        renderHistoryTable([]);
+    }
+});
+
+// GitHub config buttons
+saveGhConfigBtn.addEventListener("click", () => {
+    const cfg = {
+        owner: ghOwnerInput.value.trim(),
+        repo: ghRepoInput.value.trim() || "riasec-data-storage",
+        token: ghTokenInput.value.trim(),
+        passphrase: ghPassphraseInput.value.trim()
+    };
+    if (!cfg.owner || !cfg.repo || !cfg.token || !cfg.passphrase) {
+        ghConfigStatus.textContent = "Vui lòng điền đầy đủ Owner, Repo, Token và Passphrase.";
+        return;
+    }
+    saveGhConfig(cfg);
+});
+
+clearGhConfigBtn.addEventListener("click", () => {
+    if (!confirm("Xóa toàn bộ cấu hình GitHub trên máy này?")) return;
+    localStorage.removeItem(STORAGE_KEYS.GH_CONFIG);
+    ghOwnerInput.value = "";
+    ghRepoInput.value = "";
+    ghTokenInput.value = "";
+    ghPassphraseInput.value = "";
+    ghConfigStatus.textContent = "Đã xóa cấu hình GitHub trên máy này.";
+});
+
+// ==============================
+// Submit & Reset
+// ==============================
+
+submitBtn.addEventListener("click", async () => {
+    if (!ensureStudentInfo()) return;
+
+    const answered = getAnsweredCount();
+    if (answered < questions.length) {
+        const ok = confirm("Bạn chưa trả lời hết 60 câu. Bạn có chắc muốn xem kết quả luôn?");
+        if (!ok) return;
+    }
+
+    const scores = calculateScores();
+    lastResult = buildResultObject(scores);
+    renderResultUI(lastResult);
+
+    // Clear draft sau khi hoàn thành
+    clearDraft();
+
+    // Lưu vào lịch sử luôn (dành cho giáo viên)
+    appendHistory(lastResult);
+
+    // Tự động gửi lên GitHub nếu đã cấu hình
+    try {
+        await sendResultToGithub({ silentIfNoConfig: true, silentOnSuccess: true });
+    } catch (e) {
+        console.warn("Tự động gửi GitHub thất bại:", e);
+    }
+
+    // Chuyển sang tab Kết quả
+    navTabs.forEach(btn => {
+        if (btn.dataset.target === "result-section") {
+            btn.click();
+        }
+    });
+});
+
+resetBtn.addEventListener("click", () => {
+    if (!confirm("Bạn có chắc muốn làm lại từ đầu? Toàn bộ lựa chọn hiện tại sẽ bị xóa.")) return;
+    questions.forEach(q => {
+        const radios = document.querySelectorAll(`input[name="q${q.id}"]`);
+        radios.forEach(r => {
+            r.checked = false;
+        });
+    });
+    clearDraft();
+    updateProgress();
+    lastResult = null;
+    noResultMessage.classList.remove("hidden");
+    resultContent.classList.add("hidden");
+});
+
+// Save local history button
+saveLocalBtn.addEventListener("click", () => {
+    if (!lastResult) {
+        alert("Chưa có kết quả để lưu.");
+        return;
+    }
+    appendHistory(lastResult);
+    alert("Đã lưu kết quả vào lịch sử trên máy này.");
+});
+
+// Download txt button
+downloadTxtBtn.addEventListener("click", () => {
+    if (!lastResult) {
+        alert("Chưa có kết quả để tải.");
+        return;
+    }
+    downloadResultTxt(lastResult);
+});
+
+// Send GitHub button with loading state
+if (sendGithubBtn) {
+    sendGithubBtn.addEventListener("click", async () => {
         if (!lastResult) {
-            if (!silentIfNoConfig) alert("Bạn cần hoàn thành bài test và xem kết quả trước khi gửi lên GitHub.");
+            alert("Chưa có kết quả để gửi lên GitHub.");
             return;
         }
-
-        const cfg = loadGhConfig();
-        if (!cfg || !cfg.owner || !cfg.repo || !cfg.token || !cfg.passphrase) {
-            if (!silentIfNoConfig) {
-                alert("Chưa có cấu hình GitHub. Vào tab Admin → Cấu hình GitHub để nhập Owner, Repo, Token, Passphrase.");
-            }
-            return;
-        }
-
-        const payload = {
-            timestamp: lastResult.timestamp,
-            studentName: lastResult.studentName,
-            studentClass: lastResult.studentClass,
-            studentId: lastResult.studentId,
-            studentEmail: lastResult.studentEmail,
-            codeString: lastResult.codeString,
-            scores: lastResult.scores
-        };
-
-        const cipher = encryptResultWithPassphrase(payload, cfg.passphrase);
-        const dateStr = (lastResult.timestamp || new Date().toISOString()).slice(0, 10);
-        const path = `data/riasec-${dateStr}.jsonl`;
+        const originalHtml = sendGithubBtn.innerHTML;
+        sendGithubBtn.disabled = true;
+        sendGithubBtn.innerHTML = "⏳ Đang gửi...";
 
         try {
-            const { exists, content, sha } = await githubGetFile(cfg.owner, cfg.repo, path, cfg.token);
-
-            let newContent = content || "";
-            const lineObj = { ts: lastResult.timestamp, cipher };
-            const line = JSON.stringify(lineObj);
-            if (newContent && !newContent.endsWith("\n")) newContent += "\n";
-            newContent += line + "\n";
-
-            await githubPutFile(cfg.owner, cfg.repo, path, cfg.token, newContent, exists ? sha : null);
-
-            if (!silentOnSuccess) {
-                alert(`Đã gửi kết quả lên GitHub (file: ${path}).`);
-            } else {
-                console.log("[RIASEC] Gửi kết quả lên GitHub thành công:", path);
-            }
-        } catch (e) {
-            console.error(e);
-            alert("Lỗi GitHub: " + (e.message || "").slice(0, 200));
+            await sendResultToGithub({ silentIfNoConfig: false, silentOnSuccess: false });
+        } finally {
+            sendGithubBtn.disabled = false;
+            sendGithubBtn.innerHTML = originalHtml;
         }
-    }
-
-    // Auto mode: chỉ gọi nếu có cấu hình
-    function autoSendResultToGithub() {
-        if (!hasValidGhConfig()) {
-            console.log("[RIASEC] Chưa có cấu hình GitHub → bỏ qua auto-save.");
-            return;
-        }
-        // silentIfNoConfig = true (đã check), silentOnSuccess = true (không popup cho HS)
-        sendResultToGithub({ silentIfNoConfig: true, silentOnSuccess: true });
-    }
-
-    // Manual button: cho giáo viên test
-    sendGithubBtn?.addEventListener("click", () => {
-        sendResultToGithub({ silentIfNoConfig: false, silentOnSuccess: false });
     });
+}
 
-    // ===================== INIT ======================
+// ==============================
+// Init
+// ==============================
+
+function initGhConfigForm() {
+    const cfg = loadGhConfig();
+    if (!cfg) return;
+    ghOwnerInput.value = cfg.owner || "";
+    ghRepoInput.value = cfg.repo || "";
+    ghTokenInput.value = cfg.token || "";
+    ghPassphraseInput.value = cfg.passphrase || "";
+    if (cfg.owner && cfg.repo) {
+        ghConfigStatus.textContent = `Đang dùng repo: ${cfg.owner}/${cfg.repo}`;
+    }
+}
+
+function init() {
+    renderQuestions();
     updateProgress();
-    refreshHistoryTable();
-    applyGhConfigToForm();
-});
+    loadDraft();
+    // autosave mỗi 30s
+    setInterval(saveDraft, 30000);
+
+    // render history ban đầu
+    renderHistoryTable(loadHistory());
+    initGhConfigForm();
+}
+
+document.addEventListener("DOMContentLoaded", init);

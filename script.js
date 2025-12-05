@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // ================ BRAND CONFIG (tuỳ chỉnh theo từng trường) =================
+    // ================ BRAND CONFIG =================
     const brandConfig = {
-        logoSrc: "logo-CBB.png", // đổi sang logo trường, ví dụ: "logo-thpt-abc.png"
-        name: "CBB & Family / School Career Center", // tên trường / đơn vị
-        sub: "Trắc nghiệm tính cách nghề nghiệp Holland RIASEC" // tagline dưới logo
+        logoSrc: "logo-cbb.png", // Đặt file logo-cbb.png cùng thư mục với index.html
+        name: "CBB & Family",
+        sub: "Trắc nghiệm tính cách nghề nghiệp Holland RIASEC cho học sinh & gia đình"
     };
 
     const brandLogoEl = document.getElementById("brand-logo");
@@ -21,8 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ================ ADMIN PASSWORD =================
-    // Giáo viên có thể đổi mật khẩu Admin ở đây
-    const ADMIN_PASSWORD = "giaovien2025"; // đổi tuỳ ý
+    const ADMIN_PASSWORD = "giaovien2025";
     let adminUnlocked = false;
 
     // ===================== DATA ============================
@@ -147,8 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const questions = [
-        // (Giữ nguyên 60 câu như phiên bản trước – mình không rút gọn ở đây)
-        // R - Realistic
+        // R
         { id: 1, type: "R", text: "Tôi thích sửa chữa hoặc lắp ráp các thiết bị (xe, máy móc, đồ điện...)."},
         { id: 2, type: "R", text: "Tôi thích làm việc bằng tay hơn là chỉ ngồi bàn giấy."},
         { id: 3, type: "R", text: "Tôi cảm thấy thú vị khi sử dụng dụng cụ như búa, tua-vít, kìm..."},
@@ -159,8 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: 8, type: "R", text: "Khi đồ trong nhà hỏng, tôi thường muốn tự mày mò sửa trước."},
         { id: 9, type: "R", text: "Tôi thấy hài lòng khi hoàn thành một việc mang tính “tay chân” cụ thể."},
         { id: 10, type: "R", text: "Tôi không ngại bị bẩn tay khi làm việc nếu đó là việc mình thích."},
-
-        // I - Investigative
+        // I
         { id: 11, type: "I", text: "Tôi thích tìm hiểu nguyên nhân phía sau một hiện tượng (vì sao lại xảy ra như vậy)."},
         { id: 12, type: "I", text: "Tôi hứng thú với việc đọc sách/website về khoa học, công nghệ hoặc kiến thức mới."},
         { id: 13, type: "I", text: "Tôi thích giải những bài toán khó hoặc câu đố logic, tư duy."},
@@ -171,8 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: 18, type: "I", text: "Tôi có xu hướng tra cứu thêm thông tin ngoài sách giáo khoa khi tò mò về một chủ đề."},
         { id: 19, type: "I", text: "Tôi thích làm việc độc lập, tập trung suy nghĩ hơn là phải giao tiếp liên tục."},
         { id: 20, type: "I", text: "Khi gặp một vấn đề, tôi thích phân tích từng bước và tìm giải pháp hợp lý."},
-
-        // A - Artistic
+        // A
         { id: 21, type: "A", text: "Tôi thích vẽ, thiết kế, chụp ảnh hoặc tạo nội dung sáng tạo."},
         { id: 22, type: "A", text: "Tôi thường để ý đến màu sắc, bố cục, thẩm mỹ xung quanh."},
         { id: 23, type: "A", text: "Tôi thích nghe nhạc, chơi nhạc cụ, hát hoặc các hoạt động nghệ thuật biểu diễn."},
@@ -183,8 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: 28, type: "A", text: "Tôi thích không gian học tập/làm việc được trang trí đẹp và có cá tính."},
         { id: 29, type: "A", text: "Tôi không thích các công việc lặp lại, ít ý tưởng mới."},
         { id: 30, type: "A", text: "Tôi dễ bị thu hút bởi những sản phẩm/chiến dịch có thiết kế hoặc câu chuyện sáng tạo."},
-
-        // S - Social
+        // S
         { id: 31, type: "S", text: "Tôi thích giúp đỡ, lắng nghe và hỗ trợ bạn bè khi họ gặp khó khăn."},
         { id: 32, type: "S", text: "Tôi thấy thoải mái khi làm việc nhóm, trao đổi với người khác."},
         { id: 33, type: "S", text: "Tôi quan tâm đến cảm xúc và suy nghĩ của người xung quanh."},
@@ -195,8 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: 38, type: "S", text: "Mọi người thường tìm đến tôi để tâm sự hoặc xin lời khuyên."},
         { id: 39, type: "S", text: "Tôi quan tâm đến môi trường học đường tích cực, thân thiện."},
         { id: 40, type: "S", text: "Tôi muốn công việc tương lai có ý nghĩa với cộng đồng, xã hội."},
-
-        // E - Enterprising
+        // E
         { id: 41, type: "E", text: "Tôi thích thuyết trình, thảo luận trước lớp hoặc đám đông."},
         { id: 42, type: "E", text: "Tôi cảm thấy hứng thú với ý tưởng kinh doanh, khởi nghiệp hoặc làm dự án riêng."},
         { id: 43, type: "E", text: "Tôi thích đặt mục tiêu rõ ràng và cố gắng đạt được (điểm số, cuộc thi, doanh thu...)."},
@@ -207,8 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: 48, type: "E", text: "Tôi thích tìm cách “bán” ý tưởng của mình cho người khác."},
         { id: 49, type: "E", text: "Tôi sẵn sàng chấp nhận rủi ro hợp lý để theo đuổi cơ hội mới."},
         { id: 50, type: "E", text: "Tôi cảm thấy hứng khởi trong môi trường năng động, cạnh tranh."},
-
-        // C - Conventional
+        // C
         { id: 51, type: "C", text: "Tôi thích công việc rõ ràng, có quy trình, có hướng dẫn cụ thể."},
         { id: 52, type: "C", text: "Tôi cảm thấy thoải mái khi làm việc với bảng tính, số liệu hoặc hồ sơ, giấy tờ."},
         { id: 53, type: "C", text: "Tôi thích sắp xếp, tổ chức lại đồ đạc, tài liệu, thư mục máy tính cho ngăn nắp."},
@@ -265,7 +258,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const ghSaveConfigBtn = document.getElementById("gh-save-config-btn");
     const ghClearConfigBtn = document.getElementById("gh-clear-config-btn");
 
-    // Ô lọc trong Admin
+    // Filter
     const filterClassInput = document.getElementById("filter-class");
     const filterFromDateInput = document.getElementById("filter-from-date");
     const filterToDateInput = document.getElementById("filter-to-date");
@@ -290,8 +283,6 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.addEventListener("click", () => {
             const target = btn.dataset.target;
             if (btn.disabled) return;
-
-            // Nếu là tab Admin thì hỏi mật khẩu
             if (target === "page-admin" && !adminUnlocked) {
                 const pwd = prompt("Nhập mật khẩu Admin (do giáo viên cung cấp):");
                 if (pwd !== ADMIN_PASSWORD) {
@@ -300,12 +291,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 adminUnlocked = true;
             }
-
             showPage(target);
         });
     });
 
-    // ===================== RENDER QUESTIONS ============================
+    // ===================== QUESTIONS ============================
     function getTypeLabel(type) {
         const meta = riasecMeta[type];
         return `${meta.code} – ${meta.shortName}`;
@@ -377,9 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
         questions.forEach(q => {
             const block = document.querySelector(`.question-item[data-question-id="${q.id}"]`);
             const checked = document.querySelector(`input[name="q${q.id}"]:checked`);
-            if (block) {
-                block.classList.toggle("answered", !!checked);
-            }
+            if (block) block.classList.toggle("answered", !!checked);
         });
 
         if (answered === total) {
@@ -422,43 +410,27 @@ document.addEventListener("DOMContentLoaded", () => {
         barChart = new Chart(barCtx, {
             type: "bar",
             data: {
-                labels: labels,
-                datasets: [{
-                    label: "Điểm từng nhóm",
-                    data: data
-                }]
+                labels,
+                datasets: [{ label: "Điểm từng nhóm", data }]
             },
             options: {
                 responsive: true,
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        suggestedMax: 50
-                    }
+                    y: { beginAtZero: true, suggestedMax: 50 }
                 },
-                plugins: {
-                    legend: { display: false }
-                }
+                plugins: { legend: { display: false } }
             }
         });
 
         radarChart = new Chart(radarCtx, {
             type: "radar",
             data: {
-                labels: labels,
-                datasets: [{
-                    label: "Hồ sơ RIASEC",
-                    data: data
-                }]
+                labels,
+                datasets: [{ label: "Hồ sơ RIASEC", data }]
             },
             options: {
                 responsive: true,
-                scales: {
-                    r: {
-                        beginAtZero: true,
-                        suggestedMax: 50
-                    }
-                }
+                scales: { r: { beginAtZero: true, suggestedMax: 50 } }
             }
         });
     }
@@ -466,15 +438,15 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderTop3AndCareers(scores) {
         const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
         const top3 = entries.slice(0, 3);
-
         const codeString = top3.map(([code]) => code).join("");
+
         resultCodePill.textContent = `Mã nổi bật (Top 3): ${codeString}`;
 
         top3Container.innerHTML = "";
         top3.forEach(([code, score], index) => {
             const meta = riasecMeta[code];
-            const div = document.createElement("div");
             const rankIcon = index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉";
+            const div = document.createElement("div");
             div.className = "top3-item";
             div.innerHTML = `
                 <div><strong>${rankIcon} ${meta.name}</strong> (mã: ${meta.code}) – Điểm: ${score}</div>
@@ -508,9 +480,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const meta = riasecMeta[code];
             const card = document.createElement("div");
             card.className = "riasec-detail-card";
-            if (topCodes.includes(code)) {
-                card.classList.add("highlight");
-            }
+            if (topCodes.includes(code)) card.classList.add("highlight");
             card.innerHTML = `
                 <h4><span class="riasec-code">${meta.code}</span><span class="riasec-name">${meta.shortName}</span></h4>
                 <p class="riasec-desc">${meta.desc}</p>
@@ -566,6 +536,9 @@ document.addEventListener("DOMContentLoaded", () => {
         navResults.disabled = false;
         showPage("page-results");
         refreshHistoryTable();
+
+        // ✅ Auto-save lên GitHub nếu có cấu hình
+        autoSendResultToGithub();
     }
 
     submitBtn.addEventListener("click", () => {
@@ -584,8 +557,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function resetAnswers() {
         const radios = document.querySelectorAll("#quiz-form input[type='radio']");
         radios.forEach(r => { r.checked = false; });
-        const questionBlocks = document.querySelectorAll(".question-item");
-        questionBlocks.forEach(q => q.classList.remove("answered"));
+        document.querySelectorAll(".question-item").forEach(q => q.classList.remove("answered"));
         updateProgress();
         lastResult = null;
         resultCodePill.textContent = "Mã nổi bật (Top 3): —";
@@ -610,7 +582,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showPage("page-quiz");
     });
 
-    // ===================== LOCAL STORAGE HISTORY ============================
+    // ===================== LOCAL STORAGE HISTORY ======================
     const STORAGE_KEY = "riasecResults";
 
     function loadHistory() {
@@ -618,8 +590,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const raw = localStorage.getItem(STORAGE_KEY);
             if (!raw) return [];
             return JSON.parse(raw) || [];
-        } catch (e) {
-            console.error("Error reading history:", e);
+        } catch {
             return [];
         }
     }
@@ -637,10 +608,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const classFilter = (filterClassInput?.value || "").trim().toLowerCase();
         const fromDateStr = filterFromDateInput?.value || "";
         const toDateStr = filterToDateInput?.value || "";
-
-        if (!filterClassInput && !filterFromDateInput && !filterToDateInput) {
-            return history;
-        }
 
         return history.filter(item => {
             let ok = true;
@@ -766,7 +733,7 @@ document.addEventListener("DOMContentLoaded", () => {
         URL.revokeObjectURL(url);
     });
 
-    // ===================== PRINT / PDF ============================
+    // ===================== PRINT ============================
     printBtn.addEventListener("click", () => {
         if (!lastResult) {
             alert("Bạn cần hoàn thành bài test và xem kết quả trước khi in.");
@@ -775,21 +742,11 @@ document.addEventListener("DOMContentLoaded", () => {
         window.print();
     });
 
-    // ===================== EXPORT CSV (ADMIN) ======================
+    // ===================== EXPORT CSV ======================
     function buildCsv(history) {
         const header = [
-            "Thời gian",
-            "Họ tên",
-            "Lớp",
-            "Mã_HS",
-            "Email",
-            "Mã_RIASEC",
-            "R",
-            "I",
-            "A",
-            "S",
-            "E",
-            "C"
+            "Thời gian","Họ tên","Lớp","Mã_HS","Email",
+            "Mã_RIASEC","R","I","A","S","E","C"
         ];
         let csv = header.join(",") + "\n";
 
@@ -821,7 +778,6 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Chưa có dữ liệu lịch sử để xuất.");
             return;
         }
-
         const csv = buildCsv(history);
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
@@ -834,7 +790,7 @@ document.addEventListener("DOMContentLoaded", () => {
         URL.revokeObjectURL(url);
     });
 
-    // ===================== FILTER BUTTONS ==========================
+    // ===================== FILTER ==========================
     filterApplyBtn?.addEventListener("click", () => {
         refreshHistoryTable();
     });
@@ -846,23 +802,22 @@ document.addEventListener("DOMContentLoaded", () => {
         refreshHistoryTable();
     });
 
-    // ===================== GITHUB CONFIG (SESSION) ====================
+    // ===================== GITHUB CONFIG (LOCAL STORAGE) ====================
     const GH_CONFIG_KEY = "riasecGithubConfig";
 
     function loadGhConfig() {
         try {
-            const raw = sessionStorage.getItem(GH_CONFIG_KEY);
+            const raw = localStorage.getItem(GH_CONFIG_KEY);
             if (!raw) return null;
             return JSON.parse(raw);
-        } catch (e) {
-            console.error("Error reading GH config:", e);
+        } catch {
             return null;
         }
     }
 
     function saveGhConfig(cfg) {
         try {
-            sessionStorage.setItem(GH_CONFIG_KEY, JSON.stringify(cfg));
+            localStorage.setItem(GH_CONFIG_KEY, JSON.stringify(cfg));
         } catch (e) {
             console.error("Error saving GH config:", e);
         }
@@ -877,6 +832,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (ghPassphraseInput) ghPassphraseInput.value = cfg.passphrase || "";
     }
 
+    function hasValidGhConfig() {
+        const cfg = loadGhConfig();
+        return !!(cfg && cfg.owner && cfg.repo && cfg.token && cfg.passphrase);
+    }
+
     ghSaveConfigBtn?.addEventListener("click", () => {
         const owner = ghOwnerInput.value.trim();
         const repo = ghRepoInput.value.trim();
@@ -889,19 +849,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         saveGhConfig({ owner, repo, token, passphrase });
-        alert("Đã lưu cấu hình GitHub vào session (chỉ trên máy này).");
+        alert("Đã lưu cấu hình GitHub vào localStorage (chỉ trên máy này).");
     });
 
     ghClearConfigBtn?.addEventListener("click", () => {
-        sessionStorage.removeItem(GH_CONFIG_KEY);
+        localStorage.removeItem(GH_CONFIG_KEY);
         if (ghOwnerInput) ghOwnerInput.value = "";
         if (ghRepoInput) ghRepoInput.value = "riasec-data-storage";
         if (ghTokenInput) ghTokenInput.value = "";
         if (ghPassphraseInput) ghPassphraseInput.value = "";
-        alert("Đã xóa cấu hình GitHub khỏi session.");
+        alert("Đã xóa cấu hình GitHub khỏi máy này.");
     });
 
-    // ===================== BASE64 HELPER =============================
+    // ===================== BASE64 HELPERS =============================
     function encodeBase64(str) {
         return btoa(unescape(encodeURIComponent(str)));
     }
@@ -918,8 +878,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ===================== ENCRYPT RESULT (CryptoJS AES) =============
     function encryptResultWithPassphrase(result, passphrase) {
         const json = JSON.stringify(result);
-        const cipher = CryptoJS.AES.encrypt(json, passphrase).toString();
-        return cipher;
+        return CryptoJS.AES.encrypt(json, passphrase).toString();
     }
 
     // ===================== GITHUB API (CONTENTS) =====================
@@ -938,7 +897,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (!res.ok) {
-            throw new Error(`GitHub GET failed: ${res.status}`);
+            const txt = await res.text();
+            throw new Error(`GitHub GET failed: ${res.status} - ${txt}`);
         }
 
         const data = await res.json();
@@ -949,12 +909,10 @@ document.addEventListener("DOMContentLoaded", () => {
     async function githubPutFile(owner, repo, path, token, contentText, shaPrev) {
         const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
         const body = {
-            message: "Append RIASEC result",
-            content: encodeBase64(contentText),
+            message: "Append RIASEC result " + new Date().toISOString(),
+            content: encodeBase64(contentText)
         };
-        if (shaPrev) {
-            body.sha = shaPrev;
-        }
+        if (shaPrev) body.sha = shaPrev;
 
         const res = await fetch(url, {
             method: "PUT",
@@ -976,15 +934,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ===================== SEND RESULT TO GITHUB ======================
-    async function sendResultToGithub() {
+    async function sendResultToGithub(options = { silentIfNoConfig: false, silentOnSuccess: false }) {
+        const { silentIfNoConfig, silentOnSuccess } = options;
+
         if (!lastResult) {
-            alert("Bạn cần hoàn thành bài test và xem kết quả trước khi gửi lên GitHub.");
+            if (!silentIfNoConfig) alert("Bạn cần hoàn thành bài test và xem kết quả trước khi gửi lên GitHub.");
             return;
         }
 
         const cfg = loadGhConfig();
         if (!cfg || !cfg.owner || !cfg.repo || !cfg.token || !cfg.passphrase) {
-            alert("Chưa có cấu hình GitHub. Vào tab Admin → Cấu hình GitHub để nhập Owner, Repo, Token, Passphrase.");
+            if (!silentIfNoConfig) {
+                alert("Chưa có cấu hình GitHub. Vào tab Admin → Cấu hình GitHub để nhập Owner, Repo, Token, Passphrase.");
+            }
             return;
         }
 
@@ -999,7 +961,6 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         const cipher = encryptResultWithPassphrase(payload, cfg.passphrase);
-
         const dateStr = (lastResult.timestamp || new Date().toISOString()).slice(0, 10);
         const path = `data/riasec-${dateStr}.jsonl`;
 
@@ -1007,31 +968,40 @@ document.addEventListener("DOMContentLoaded", () => {
             const { exists, content, sha } = await githubGetFile(cfg.owner, cfg.repo, path, cfg.token);
 
             let newContent = content || "";
-            const lineObj = {
-                ts: lastResult.timestamp,
-                cipher: cipher
-            };
+            const lineObj = { ts: lastResult.timestamp, cipher };
             const line = JSON.stringify(lineObj);
-
-            if (newContent && !newContent.endsWith("\n")) {
-                newContent += "\n";
-            }
+            if (newContent && !newContent.endsWith("\n")) newContent += "\n";
             newContent += line + "\n";
 
             await githubPutFile(cfg.owner, cfg.repo, path, cfg.token, newContent, exists ? sha : null);
 
-            alert(`Đã gửi kết quả lên GitHub (file: ${path}).`);
+            if (!silentOnSuccess) {
+                alert(`Đã gửi kết quả lên GitHub (file: ${path}).`);
+            } else {
+                console.log("[RIASEC] Gửi kết quả lên GitHub thành công:", path);
+            }
         } catch (e) {
             console.error(e);
-            alert("Gửi dữ liệu lên GitHub thất bại. Kiểm tra lại Token / quyền repo / mạng.");
+            alert("Lỗi GitHub: " + (e.message || "").slice(0, 200));
         }
     }
 
+    // Auto mode: chỉ gọi nếu có cấu hình
+    function autoSendResultToGithub() {
+        if (!hasValidGhConfig()) {
+            console.log("[RIASEC] Chưa có cấu hình GitHub → bỏ qua auto-save.");
+            return;
+        }
+        // silentIfNoConfig = true (đã check), silentOnSuccess = true (không popup cho HS)
+        sendResultToGithub({ silentIfNoConfig: true, silentOnSuccess: true });
+    }
+
+    // Manual button: cho giáo viên test
     sendGithubBtn?.addEventListener("click", () => {
-        sendResultToGithub();
+        sendResultToGithub({ silentIfNoConfig: false, silentOnSuccess: false });
     });
 
-    // Init
+    // ===================== INIT ======================
     updateProgress();
     refreshHistoryTable();
     applyGhConfigToForm();

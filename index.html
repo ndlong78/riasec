@@ -2,355 +2,267 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Trắc nghiệm Holland RIASEC - CBB & Family Career Center</title>
+    <title>CBB & Family – Trắc nghiệm Holland RIASEC</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- CryptoJS CDN (dùng để mã hóa dữ liệu trước khi gửi lên GitHub) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"
-            integrity="sha512-+qgUSwD1GYLLmMvx1YHTWnURiSY9ZwGSP0XrF53cWEuGuxaTiBb9G9sZApYbpfxZ4msC9ETPenIK2giD2C61NQ=="
-            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- CryptoJS for AES encryption -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 </head>
 <body>
 <div class="app-shell">
-    <!-- BRAND BAR -->
-    <div class="brand-bar">
-        <div class="brand-left">
-            <img src="logo-cbb.png" alt="Logo CBB & Family" class="brand-logo" id="brand-logo">
+    <header class="app-header">
+        <div class="brand">
+            <img src="logo-cbb.png" alt="CBB & Family Logo" class="brand-logo">
             <div class="brand-text">
-                <div class="brand-name" id="brand-name">CBB & Family</div>
-                <div class="brand-sub" id="brand-sub">Trắc nghiệm tính cách nghề nghiệp Holland RIASEC</div>
+                <div class="brand-title">CBB &amp; Family Career Center</div>
+                <div class="brand-sub">Trắc nghiệm tính cách nghề nghiệp Holland RIASEC cho học sinh THPT</div>
             </div>
         </div>
-        <div class="brand-right">
-            <span class="brand-tag">CBB & Family Career Center</span>
-        </div>
-    </div>
-
-    <header class="header">
-        <div class="badge">
-            <span class="badge-dot"></span>
-            Trắc nghiệm Holland RIASEC · 60 câu · Phù hợp lớp 10–11
-        </div>
-        <h1>Khám phá nhóm tính cách nghề nghiệp của bạn (RIASEC)</h1>
-        <p class="subtitle">
-            Dựa trên lý thuyết Holland RIASEC với 6 nhóm tính cách: Realistic, Investigative, Artistic, Social,
-            Enterprising, Conventional. Hãy trả lời theo <strong>mức độ giống bạn</strong>, không cần suy nghĩ quá lâu.
-        </p>
-        <p class="tagline">👉 Sau khi làm xong, bạn sẽ nhận được mã RIASEC, biểu đồ điểm và gợi ý ngành học/nghề nghiệp phù hợp.</p>
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-target="intro-section">Giới thiệu</button>
+            <button class="nav-tab" data-target="test-section">Làm bài trắc nghiệm</button>
+            <button class="nav-tab" data-target="result-section">Kết quả RIASEC</button>
+            <button class="nav-tab" data-target="admin-section">Admin</button>
+        </nav>
     </header>
 
-    <!-- STUDENT INFO -->
-    <section class="card student-card">
-        <div class="card-header">
-            <h2>Thông tin học sinh</h2>
-            <span class="pill">Giúp lưu và xuất kết quả theo từng bạn</span>
-        </div>
-        <div class="student-grid">
-            <div class="form-group">
-                <label for="student-name">Họ và tên</label>
-                <input type="text" id="student-name" placeholder="Nguyễn Văn A">
-            </div>
-            <div class="form-group">
-                <label for="student-class">Lớp</label>
-                <input type="text" id="student-class" placeholder="10A1 / 11D2...">
-            </div>
-            <div class="form-group">
-                <label for="student-id">Mã học sinh</label>
-                <input type="text" id="student-id" placeholder="VD: 10A1-023">
-            </div>
-            <div class="form-group">
-                <label for="student-email">Email</label>
-                <input type="email" id="student-email" placeholder="vd: hs001@truong.edu.vn">
-            </div>
-        </div>
-        <p class="small-muted">
-            Nên nhập đúng Họ tên, Lớp, Mã học sinh và Email để khi lưu / xuất kết quả không bị nhầm giữa các học sinh.
-        </p>
-    </section>
-
-    <!-- NAVIGATION TABS -->
-    <nav class="top-nav">
-        <button class="tab-btn active" data-target="page-intro" id="nav-intro">
-            <span class="icon">📘</span> Giới thiệu & Hướng dẫn
-        </button>
-        <button class="tab-btn" data-target="page-quiz" id="nav-quiz">
-            <span class="icon">📝</span> Làm bài trắc nghiệm
-        </button>
-        <button class="tab-btn" data-target="page-results" id="nav-results" disabled>
-            <span class="icon">📊</span> Kết quả RIASEC
-        </button>
-        <button class="tab-btn" data-target="page-admin" id="nav-admin">
-            <span class="icon">🛠️</span> Admin (Lịch sử)
-        </button>
-    </nav>
-
-    <main>
-        <!-- PAGE 1: INTRO -->
-        <section id="page-intro" class="page active">
+    <main class="app-main">
+        <!-- Giới thiệu -->
+        <section id="intro-section" class="section visible">
             <div class="card">
-                <div class="card-header">
-                    <h2>1. Trắc nghiệm Holland RIASEC là gì?</h2>
-                    <span class="pill">Dành cho học sinh THPT</span>
+                <h1>Khám phá tính cách nghề nghiệp với Holland RIASEC</h1>
+                <p>
+                    Bài trắc nghiệm này giúp em hiểu rõ hơn mình phù hợp với những nhóm tính cách nghề nghiệp nào,
+                    từ đó tham khảo để chọn ban, chọn khối và định hướng ngành học sau này.
+                </p>
+                <ul class="checklist">
+                    <li>Đối tượng: học sinh lớp 10–11</li>
+                    <li>Thời gian làm: khoảng 10–15 phút</li>
+                    <li>Gồm 60 câu hỏi, chia đều 6 nhóm R – I – A – S – E – C</li>
+                    <li>Kết quả có biểu đồ, giải thích chi tiết và gợi ý ngành nghề</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Thông tin học sinh</h2>
+                <div class="form-grid">
+                    <label>
+                        Họ và tên *
+                        <input type="text" id="student-name" placeholder="Nguyễn Văn A">
+                    </label>
+                    <label>
+                        Lớp *
+                        <input type="text" id="student-class" placeholder="10A1">
+                    </label>
+                    <label>
+                        Mã học sinh
+                        <input type="text" id="student-id" placeholder="VD: 10A1-001">
+                    </label>
+                    <label>
+                        Email
+                        <input type="email" id="student-email" placeholder="email@example.com">
+                    </label>
                 </div>
-                <div class="info-columns">
-                    <div>
-                        <ul class="info-list">
-                            <li>• Mỗi người có xu hướng thuộc một số nhóm tính cách nghề nghiệp nổi bật.</li>
-                            <li>• Holland chia thành 6 nhóm: <strong>R – I – A – S – E – C</strong>.</li>
-                            <li>• Bài test gồm <strong>60 câu</strong>, mỗi câu 5 mức độ từ “Hoàn toàn không đồng ý” đến “Rất đồng ý”.</li>
-                            <li>• Kết quả cho biết: nhóm tính cách nổi trội, mã RIASEC (ví dụ: ISA, SEC...), và gợi ý một số ngành nghề.</li>
-                        </ul>
-                        <div style="margin-top: 10px;">
-                            <strong>Cách làm bài:</strong>
-                            <ul class="info-list" style="margin-top: 4px;">
-                                <li>1️⃣ Điền thông tin <strong>Họ tên + Lớp + Mã HS + Email</strong> phía trên.</li>
-                                <li>2️⃣ Chọn tab <strong>“Làm bài trắc nghiệm”</strong>.</li>
-                                <li>3️⃣ Trả lời hết 60 câu hỏi theo mức độ giống bạn.</li>
-                                <li>4️⃣ Bấm <strong>“Xem kết quả RIASEC”</strong> → tab <strong>“Kết quả RIASEC”</strong> sẽ mở.</li>
-                                <li>5️⃣ Hệ thống có thể <strong>tự động lưu lên GitHub</strong> (nếu giáo viên đã cấu hình ở tab Admin).</li>
-                                <li>6️⃣ Tại tab Kết quả, bạn có thể <strong>lưu lịch sử</strong>, <strong>tải file kết quả</strong> hoặc <strong>in PDF</strong>.</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="small-muted">6 nhóm tính cách RIASEC:</div>
-                        <div class="riasec-chip-row">
-                            <div class="riasec-chip"><strong>R</strong> · Thực tế (Realistic)</div>
-                            <div class="riasec-chip"><strong>I</strong> · Nghiên cứu (Investigative)</div>
-                            <div class="riasec-chip"><strong>A</strong> · Nghệ thuật (Artistic)</div>
-                            <div class="riasec-chip"><strong>S</strong> · Xã hội (Social)</div>
-                            <div class="riasec-chip"><strong>E</strong> · Doanh nghiệp (Enterprising)</div>
-                            <div class="riasec-chip"><strong>C</strong> · Truyền thống (Conventional)</div>
-                        </div>
-                    </div>
-                </div>
+                <p class="note">
+                    Thông tin này dùng để lưu kết quả và thống kê. Dấu * là bắt buộc.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>Cách làm bài</h2>
+                <ol class="checklist">
+                    <li>Chuyển sang tab <strong>“Làm bài trắc nghiệm”</strong>.</li>
+                    <li>Đọc từng câu và chọn mức độ phù hợp với bản thân từ 1 → 5.</li>
+                    <li>Sau khi trả lời hết 60 câu, bấm <strong>“Xem kết quả RIASEC”</strong>.</li>
+                    <li>Có thể lưu kết quả, tải file TXT và trao đổi với ba mẹ, thầy cô.</li>
+                </ol>
             </div>
         </section>
 
-        <!-- PAGE 2: QUIZ -->
-        <section id="page-quiz" class="page">
-            <div class="card" id="quiz-card">
-                <div class="card-header">
-                    <h2>2. Bài trắc nghiệm 60 câu RIASEC</h2>
-                    <span class="pill">Thời gian làm: 10–15 phút</span>
-                </div>
+        <!-- Làm bài -->
+        <section id="test-section" class="section">
+            <div class="card">
+                <h2>Bài trắc nghiệm RIASEC (60 câu)</h2>
+                <p class="note">
+                    Đánh giá theo mức độ giống bản thân: 1 – Hoàn toàn không đồng ý … 5 – Rất đồng ý.
+                    Không có đúng/sai – chỉ có giống em hay không.
+                </p>
 
                 <div class="progress-wrapper">
-                    <div class="progress-top">
-                        <span id="progress-text">Đã hoàn thành: 0/60 câu</span>
+                    <div class="progress-text">
+                        <span id="progress-count">Đã hoàn thành: 0/60 câu</span>
                         <span id="progress-percent">0%</span>
                     </div>
-                    <div class="progress-bar-bg">
+                    <div
+                        class="progress-bar-bg"
+                        id="progress-bar-bg"
+                        role="progressbar"
+                        aria-valuenow="0"
+                        aria-valuemin="0"
+                        aria-valuemax="100">
                         <div class="progress-bar-fill" id="progress-bar"></div>
                     </div>
                 </div>
 
-                <div class="legend">
-                    <span><strong>1</strong> – Hoàn toàn không đồng ý</span>
-                    <span><strong>2</strong> – Không đồng ý</span>
-                    <span><strong>3</strong> – Phân vân / Không chắc</span>
-                    <span><strong>4</strong> – Đồng ý</span>
-                    <span><strong>5</strong> – Rất đồng ý</span>
-                </div>
+                <div id="questions-container" class="questions-container"></div>
 
-                <form id="quiz-form">
-                    <div class="questions-list" id="questions-container">
-                        <!-- Questions injected by JS -->
-                    </div>
-
-                    <div class="btn-row">
-                        <button type="button" class="btn btn-outline" id="reset-btn">
-                            <span class="icon">🔁</span> Làm lại từ đầu
-                        </button>
-                        <div style="text-align: right; flex: 1;">
-                            <button type="button" class="btn btn-primary" id="submit-btn" style="float: right;" disabled>
-                                <span class="icon">📊</span> Xem kết quả RIASEC
-                            </button>
-                            <div class="note-warning" id="warning-text" style="display:none;">
-                                Bạn cần trả lời hết 60 câu để xem kết quả.
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-        <!-- PAGE 3: RESULTS -->
-        <section id="page-results" class="page">
-            <div class="card" id="results-section">
-                <div class="card-header">
-                    <h2>3. Kết quả RIASEC & gợi ý nghề nghiệp</h2>
-                    <span class="pill" id="result-code-pill">Mã nổi bật (Top 3): —</span>
-                </div>
-
-                <p class="result-meta">
-                    Đây là kết quả gợi ý dựa trên 60 câu trả lời của bạn. Hệ thống có thể tự lưu kết quả lên GitHub
-                    (nếu giáo viên đã cấu hình), đồng thời bạn có thể lưu cục bộ và tải file TXT.
-                </p>
-
-                <div class="overall-eval" id="overall-eval">
-                    Bạn hãy hoàn thành bài trắc nghiệm để xem phần đánh giá tổng quan.
-                </div>
-
-                <div class="results-grid" style="margin-top: 10px;">
-                    <div>
-                        <span class="pill-top3">⭐ Top 3 nhóm tính cách nổi bật</span>
-                        <div class="top3-list" id="top3-container"></div>
-
-                        <div class="career-list" id="careers-container"></div>
-
-                        <div class="export-box">
-                            <h3>📂 Lưu / Xuất kết quả cá nhân</h3>
-                            <p class="small-muted">
-                                Kết quả sẽ gắn với: <strong id="summary-student-info">Chưa có họ tên/lớp</strong>.
-                            </p>
-                            <div class="btn-row">
-                                <button type="button" class="btn btn-outline" id="save-local-btn">
-                                    <span class="icon">💾</span> Lưu vào lịch sử trên máy
-                                </button>
-                                <button type="button" class="btn btn-outline" id="download-txt-btn">
-                                    <span class="icon">📥</span> Tải file kết quả (.txt)
-                                </button>
-                                <button type="button" class="btn btn-outline" id="print-btn">
-                                    <span class="icon">🖨️</span> In / Lưu PDF
-                                </button>
-                                <button type="button" class="btn btn-primary" id="send-github-btn">
-                                    <span class="icon">☁️</span> Gửi lại lên GitHub (thủ công)
-                                </button>
-                            </div>
-                            <p class="small-muted">
-                                Auto-save lên GitHub chỉ hoạt động trên máy/trình duyệt đã cấu hình Token trong tab Admin.
-                            </p>
-                        </div>
-                    </div>
-                    <div>
-                        <canvas id="barChart" height="180"></canvas>
-                        <canvas id="radarChart" height="180" style="margin-top: 8px;"></canvas>
-                    </div>
-                </div>
-
-                <div class="riasec-detail-grid" id="riasec-detail-grid">
-                </div>
-
-                <div class="btn-row" style="margin-top: 12px;">
-                    <button type="button" class="btn btn-outline" id="retake-btn">
-                        <span class="icon">🔄</span> Làm lại bài test
+                <div class="actions">
+                    <button
+                        type="button"
+                        class="btn"
+                        id="reset-btn">
+                        🔁 Làm lại từ đầu
                     </button>
-                    <button type="button" class="btn btn-primary" id="back-to-quiz-btn">
-                        <span class="icon">📝</span> Quay lại trang trắc nghiệm
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        id="submit-btn"
+                        accesskey="k"
+                        disabled>
+                        📊 Xem kết quả RIASEC
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- PAGE 4: ADMIN -->
-        <section id="page-admin" class="page">
+        <!-- Kết quả -->
+        <section id="result-section" class="section">
             <div class="card">
-                <div class="card-header">
-                    <h2>4. Admin – Lịch sử & Export CSV</h2>
-                    <span class="pill">Lưu trên trình duyệt + GitHub (tùy chọn)</span>
+                <h2>Kết quả RIASEC của bạn</h2>
+                <div id="no-result-message" class="note">
+                    Bạn chưa có kết quả nào. Hãy làm bài trắc nghiệm trước.
                 </div>
-                <p class="result-meta">
-                    Trang này dành cho giáo viên/cố vấn hướng nghiệp xem tổng hợp các kết quả đã được lưu trên máy này,
-                    cấu hình GitHub để backup lên repo chung, và xuất CSV thống kê.
-                </p>
+                <div id="result-content" class="result-content hidden">
+                    <div class="result-header">
+                        <div>
+                            <div id="result-student-info" class="result-student-info"></div>
+                            <div id="result-code" class="result-code"></div>
+                            <div id="result-overall" class="result-overall"></div>
+                        </div>
+                        <div class="result-actions">
+                            <button type="button" class="btn" id="save-local-btn">💾 Lưu vào lịch sử trên máy</button>
+                            <button type="button" class="btn" id="download-txt-btn">⬇️ Tải kết quả (.txt)</button>
+                            <button type="button" class="btn" id="send-github-btn">
+                                ☁️ Gửi lại lên GitHub
+                            </button>
+                        </div>
+                    </div>
 
-                <div class="export-box">
-                    <h3>🔎 Bộ lọc lịch sử (local)</h3>
-                    <div class="student-grid" style="margin-bottom: 8px;">
-                        <div class="form-group">
-                            <label for="filter-class">Lọc theo lớp</label>
+                    <div class="charts-grid">
+                        <div>
+                            <h3>Biểu đồ cột</h3>
+                            <canvas id="bar-chart"></canvas>
+                        </div>
+                        <div>
+                            <h3>Biểu đồ radar</h3>
+                            <canvas id="radar-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div id="top3-container" class="top3-container"></div>
+
+                    <div id="riasec-details" class="riasec-details"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin -->
+        <section id="admin-section" class="section">
+            <div class="card">
+                <h2>Admin – Giáo viên / Phụ huynh</h2>
+                <div id="admin-locked">
+                    <p>Vui lòng nhập mật khẩu Admin để xem khu vực này.</p>
+                    <div class="form-inline">
+                        <input type="password" id="admin-password-input" placeholder="Mật khẩu Admin">
+                        <button type="button" class="btn btn-primary" id="admin-login-btn">🔓 Mở khóa</button>
+                    </div>
+                    <p class="note">Mật khẩu mặc định (có thể đổi trong code): <code>giaovien2025</code></p>
+                </div>
+
+                <div id="admin-content" class="hidden">
+                    <h3>Lịch sử kết quả trên máy này</h3>
+                    <div class="filters">
+                        <label>
+                            Lọc theo lớp:
                             <input type="text" id="filter-class" placeholder="VD: 10A1">
-                        </div>
-                        <div class="form-group">
-                            <label for="filter-from-date">Từ ngày</label>
-                            <input type="date" id="filter-from-date">
-                        </div>
-                        <div class="form-group">
-                            <label for="filter-to-date">Đến ngày</label>
-                            <input type="date" id="filter-to-date">
-                        </div>
+                        </label>
+                        <label>
+                            Từ ngày:
+                            <input type="date" id="filter-from">
+                        </label>
+                        <label>
+                            Đến ngày:
+                            <input type="date" id="filter-to">
+                        </label>
+                        <button type="button" class="btn" id="apply-filter-btn">Lọc</button>
+                        <button type="button" class="btn" id="clear-filter-btn">Xóa lọc</button>
                     </div>
-                    <div class="btn-row">
-                        <button type="button" class="btn btn-outline" id="filter-apply-btn">
-                            <span class="icon">✅</span> Áp dụng lọc
-                        </button>
-                        <button type="button" class="btn btn-outline" id="filter-reset-btn">
-                            <span class="icon">♻️</span> Xóa lọc
-                        </button>
-                        <button type="button" class="btn btn-outline" id="export-csv-btn">
-                            <span class="icon">📤</span> Xuất toàn bộ lịch sử (.csv)
-                        </button>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Thời gian</th>
+                                <th>Họ tên</th>
+                                <th>Lớp</th>
+                                <th>Mã HS</th>
+                                <th>Email</th>
+                                <th>Mã RIASEC</th>
+                            </tr>
+                            </thead>
+                            <tbody id="history-table-body"></tbody>
+                        </table>
                     </div>
-                </div>
+                    <div class="actions">
+                        <button type="button" class="btn" id="export-csv-btn">⬇️ Xuất CSV</button>
+                        <button type="button" class="btn" id="clear-history-btn">🗑 Xóa toàn bộ lịch sử trên máy này</button>
+                    </div>
 
-                <!-- Cấu hình GitHub -->
-                <div class="export-box">
-                    <h3>☁️ Cấu hình GitHub lưu dữ liệu (chỉ giáo viên)</h3>
-                    <p class="small-muted">
-                        Token và passphrase chỉ lưu trong <strong>localStorage</strong> của trình duyệt này, không ghi vào mã nguồn.
-                    </p>
-                    <div class="student-grid" style="margin-bottom: 8px;">
-                        <div class="form-group">
-                            <label for="gh-owner">GitHub Owner / Tổ chức</label>
-                            <input type="text" id="gh-owner" placeholder="vd: cbb-family">
-                        </div>
-                        <div class="form-group">
-                            <label for="gh-repo">Repository</label>
-                            <input type="text" id="gh-repo" value="riasec-data-storage">
-                        </div>
-                        <div class="form-group">
-                            <label for="gh-token">GitHub Token (PAT)</label>
-                            <input type="password" id="gh-token" placeholder="Dán PAT vào đây (contents:write)">
-                        </div>
-                        <div class="form-group">
-                            <label for="gh-passphrase">Passphrase mã hóa (AES)</label>
-                            <input type="password" id="gh-passphrase" placeholder="Mật khẩu bí mật để mã hóa dữ liệu">
-                        </div>
-                    </div>
-                    <div class="btn-row">
-                        <button type="button" class="btn btn-outline" id="gh-save-config-btn">
-                            <span class="icon">💡</span> Lưu cấu hình (trên máy này)
-                        </button>
-                        <button type="button" class="btn btn-outline" id="gh-clear-config-btn">
-                            <span class="icon">🧹</span> Xóa cấu hình
-                        </button>
-                    </div>
-                    <p class="small-muted">
-                        Cấu hình này <strong>không</strong> được commit lên GitHub.  
-                        Nên dùng token <strong>fine-grained</strong> chỉ cho repo <code>riasec-data-storage</code> với quyền <code>contents: read/write</code>.
-                    </p>
-                </div>
+                    <hr>
 
-                <div class="history-card" id="history-card">
-                    <h3>📜 Lịch sử kết quả trên máy</h3>
-                    <p class="small-muted">
-                        Nếu mở trên máy khác hoặc trình duyệt khác thì lịch sử local sẽ trống vì không dùng chung dữ liệu.
+                    <h3>Cấu hình GitHub (lưu dữ liệu tập trung, có mã hóa)</h3>
+                    <p class="note">
+                        Các thông tin dưới đây chỉ lưu trên <strong>máy này</strong> bằng localStorage và
+                        không hiển thị cho học sinh. Hãy dùng token giới hạn cho repo <code>riasec-data-storage</code>.
                     </p>
-                    <table id="history-table">
-                        <thead>
-                        <tr>
-                            <th>Thời gian</th>
-                            <th>Họ tên</th>
-                            <th>Lớp</th>
-                            <th>Mã HS</th>
-                            <th>Email</th>
-                            <th>Mã RIASEC</th>
-                        </tr>
-                        </thead>
-                        <tbody id="history-body">
-                        </tbody>
-                    </table>
+
+                    <div class="form-grid">
+                        <label>
+                            GitHub Owner (tài khoản / tổ chức)
+                            <input type="text" id="gh-owner" placeholder="VD: cbb-family">
+                        </label>
+                        <label>
+                            Repository
+                            <input type="text" id="gh-repo" placeholder="riasec-data-storage">
+                        </label>
+                        <label>
+                            GitHub Token (PAT)
+                            <input type="password" id="gh-token" placeholder="Token với quyền Contents: read & write">
+                        </label>
+                        <label>
+                            Passphrase mã hóa (AES)
+                            <input type="password" id="gh-passphrase" placeholder="Ví dụ: cbb-riasec-2025">
+                        </label>
+                    </div>
+                    <div class="actions">
+                        <button type="button" class="btn btn-primary" id="save-gh-config-btn">
+                            💾 Lưu cấu hình (trên máy này)
+                        </button>
+                        <button type="button" class="btn" id="clear-gh-config-btn">
+                            🗑 Xóa cấu hình trên máy này
+                        </button>
+                    </div>
+                    <p id="gh-config-status" class="note"></p>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="footer">
-        <span><strong>Lưu ý:</strong> Bài test mang tính định hướng, bạn nên trao đổi thêm với thầy cô, phụ huynh hoặc chuyên gia tư vấn.</span>
-        <span class="small-muted">Holland RIASEC · Phiên bản dành cho học sinh Việt Nam · Developed for CBB & Family</span>
+    <footer class="app-footer">
+        CBB &amp; Family Career Center · Holland RIASEC Test · Deploy trên GitHub Pages
     </footer>
 </div>
 

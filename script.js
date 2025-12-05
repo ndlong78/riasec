@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
     // ================ BRAND CONFIG (tuỳ chỉnh theo từng trường) =================
     const brandConfig = {
-        logoSrc: "logo-CBB.png", // đổi sang logo trường, ví dụ: "logo-thpt-abc.png"
-        name: "CBB / School Career Center", // tên trường / đơn vị
+        logoSrc: "logo-CBB & Family.png", // đổi sang logo trường, ví dụ: "logo-thpt-abc.png"
+        name: "CBB & Family / School Career Center", // tên trường / đơn vị
         sub: "Trắc nghiệm tính cách nghề nghiệp Holland RIASEC" // tagline dưới logo
     };
 
@@ -147,6 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const questions = [
+        // (Giữ nguyên 60 câu như phiên bản trước – mình không rút gọn ở đây)
         // R - Realistic
         { id: 1, type: "R", text: "Tôi thích sửa chữa hoặc lắp ráp các thiết bị (xe, máy móc, đồ điện...)."},
         { id: 2, type: "R", text: "Tôi thích làm việc bằng tay hơn là chỉ ngồi bàn giấy."},
@@ -241,6 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const historyBody = document.getElementById("history-body");
     const summaryStudentInfo = document.getElementById("summary-student-info");
     const exportCsvBtn = document.getElementById("export-csv-btn");
+    const sendGithubBtn = document.getElementById("send-github-btn");
 
     const studentNameInput = document.getElementById("student-name");
     const studentClassInput = document.getElementById("student-class");
@@ -254,6 +256,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const pages = document.querySelectorAll(".page");
     const tabButtons = document.querySelectorAll(".tab-btn");
+
+    // Admin GitHub config inputs
+    const ghOwnerInput = document.getElementById("gh-owner");
+    const ghRepoInput = document.getElementById("gh-repo");
+    const ghTokenInput = document.getElementById("gh-token");
+    const ghPassphraseInput = document.getElementById("gh-passphrase");
+    const ghSaveConfigBtn = document.getElementById("gh-save-config-btn");
+    const ghClearConfigBtn = document.getElementById("gh-clear-config-btn");
 
     // Ô lọc trong Admin
     const filterClassInput = document.getElementById("filter-class");
@@ -533,6 +543,22 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
+    function ensureStudentInfo() {
+        const name = studentNameInput.value.trim();
+        const cls = studentClassInput.value.trim();
+        if (!name) {
+            alert("Vui lòng nhập Họ và tên trước khi xem kết quả.");
+            studentNameInput.focus();
+            return false;
+        }
+        if (!cls) {
+            alert("Vui lòng nhập Lớp trước khi xem kết quả.");
+            studentClassInput.focus();
+            return false;
+        }
+        return true;
+    }
+
     function showResultsPage() {
         const scores = computeScores();
         renderCharts(scores);
@@ -549,6 +575,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         warningText.style.display = "none";
+
+        if (!ensureStudentInfo()) return;
         showResultsPage();
     });
 
@@ -818,7 +846,193 @@ document.addEventListener("DOMContentLoaded", () => {
         refreshHistoryTable();
     });
 
+    // ===================== GITHUB CONFIG (SESSION) ====================
+    const GH_CONFIG_KEY = "riasecGithubConfig";
+
+    function loadGhConfig() {
+        try {
+            const raw = sessionStorage.getItem(GH_CONFIG_KEY);
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch (e) {
+            console.error("Error reading GH config:", e);
+            return null;
+        }
+    }
+
+    function saveGhConfig(cfg) {
+        try {
+            sessionStorage.setItem(GH_CONFIG_KEY, JSON.stringify(cfg));
+        } catch (e) {
+            console.error("Error saving GH config:", e);
+        }
+    }
+
+    function applyGhConfigToForm() {
+        const cfg = loadGhConfig();
+        if (!cfg) return;
+        if (ghOwnerInput) ghOwnerInput.value = cfg.owner || "";
+        if (ghRepoInput) ghRepoInput.value = cfg.repo || "riasec-data-storage";
+        if (ghTokenInput) ghTokenInput.value = cfg.token || "";
+        if (ghPassphraseInput) ghPassphraseInput.value = cfg.passphrase || "";
+    }
+
+    ghSaveConfigBtn?.addEventListener("click", () => {
+        const owner = ghOwnerInput.value.trim();
+        const repo = ghRepoInput.value.trim();
+        const token = ghTokenInput.value.trim();
+        const passphrase = ghPassphraseInput.value.trim();
+
+        if (!owner || !repo || !token || !passphrase) {
+            alert("Vui lòng nhập đầy đủ Owner, Repo, Token và Passphrase.");
+            return;
+        }
+
+        saveGhConfig({ owner, repo, token, passphrase });
+        alert("Đã lưu cấu hình GitHub vào session (chỉ trên máy này).");
+    });
+
+    ghClearConfigBtn?.addEventListener("click", () => {
+        sessionStorage.removeItem(GH_CONFIG_KEY);
+        if (ghOwnerInput) ghOwnerInput.value = "";
+        if (ghRepoInput) ghRepoInput.value = "riasec-data-storage";
+        if (ghTokenInput) ghTokenInput.value = "";
+        if (ghPassphraseInput) ghPassphraseInput.value = "";
+        alert("Đã xóa cấu hình GitHub khỏi session.");
+    });
+
+    // ===================== BASE64 HELPER =============================
+    function encodeBase64(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    function decodeBase64(b64) {
+        try {
+            return decodeURIComponent(escape(atob(b64)));
+        } catch (e) {
+            console.error("Error decoding base64:", e);
+            return "";
+        }
+    }
+
+    // ===================== ENCRYPT RESULT (CryptoJS AES) =============
+    function encryptResultWithPassphrase(result, passphrase) {
+        const json = JSON.stringify(result);
+        const cipher = CryptoJS.AES.encrypt(json, passphrase).toString();
+        return cipher;
+    }
+
+    // ===================== GITHUB API (CONTENTS) =====================
+    async function githubGetFile(owner, repo, path, token) {
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+        const res = await fetch(url, {
+            headers: {
+                "Accept": "application/vnd.github+json",
+                "Authorization": `Bearer ${token}`,
+                "X-GitHub-Api-Version": "2022-11-28"
+            }
+        });
+
+        if (res.status === 404) {
+            return { exists: false, content: "", sha: null };
+        }
+
+        if (!res.ok) {
+            throw new Error(`GitHub GET failed: ${res.status}`);
+        }
+
+        const data = await res.json();
+        const text = data.content ? decodeBase64(data.content) : "";
+        return { exists: true, content: text, sha: data.sha };
+    }
+
+    async function githubPutFile(owner, repo, path, token, contentText, shaPrev) {
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+        const body = {
+            message: "Append RIASEC result",
+            content: encodeBase64(contentText),
+        };
+        if (shaPrev) {
+            body.sha = shaPrev;
+        }
+
+        const res = await fetch(url, {
+            method: "PUT",
+            headers: {
+                "Accept": "application/vnd.github+json",
+                "Authorization": `Bearer ${token}`,
+                "X-GitHub-Api-Version": "2022-11-28",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+            const txt = await res.text();
+            throw new Error(`GitHub PUT failed: ${res.status} - ${txt}`);
+        }
+
+        return await res.json();
+    }
+
+    // ===================== SEND RESULT TO GITHUB ======================
+    async function sendResultToGithub() {
+        if (!lastResult) {
+            alert("Bạn cần hoàn thành bài test và xem kết quả trước khi gửi lên GitHub.");
+            return;
+        }
+
+        const cfg = loadGhConfig();
+        if (!cfg || !cfg.owner || !cfg.repo || !cfg.token || !cfg.passphrase) {
+            alert("Chưa có cấu hình GitHub. Vào tab Admin → Cấu hình GitHub để nhập Owner, Repo, Token, Passphrase.");
+            return;
+        }
+
+        const payload = {
+            timestamp: lastResult.timestamp,
+            studentName: lastResult.studentName,
+            studentClass: lastResult.studentClass,
+            studentId: lastResult.studentId,
+            studentEmail: lastResult.studentEmail,
+            codeString: lastResult.codeString,
+            scores: lastResult.scores
+        };
+
+        const cipher = encryptResultWithPassphrase(payload, cfg.passphrase);
+
+        const dateStr = (lastResult.timestamp || new Date().toISOString()).slice(0, 10);
+        const path = `data/riasec-${dateStr}.jsonl`;
+
+        try {
+            const { exists, content, sha } = await githubGetFile(cfg.owner, cfg.repo, path, cfg.token);
+
+            let newContent = content || "";
+            const lineObj = {
+                ts: lastResult.timestamp,
+                cipher: cipher
+            };
+            const line = JSON.stringify(lineObj);
+
+            if (newContent && !newContent.endsWith("\n")) {
+                newContent += "\n";
+            }
+            newContent += line + "\n";
+
+            await githubPutFile(cfg.owner, cfg.repo, path, cfg.token, newContent, exists ? sha : null);
+
+            alert(`Đã gửi kết quả lên GitHub (file: ${path}).`);
+        } catch (e) {
+            console.error(e);
+            alert("Gửi dữ liệu lên GitHub thất bại. Kiểm tra lại Token / quyền repo / mạng.");
+        }
+    }
+
+    sendGithubBtn?.addEventListener("click", () => {
+        sendResultToGithub();
+    });
+
     // Init
     updateProgress();
     refreshHistoryTable();
+    applyGhConfigToForm();
 });

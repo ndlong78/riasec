@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
     // ================ BRAND CONFIG (tuỳ chỉnh theo từng trường) =================
     const brandConfig = {
-        logoSrc: "logo-CBB.png", // đổi sang logo trường, ví dụ: "logo-thpt-abc.png"
-        name: "CBB / School Career Center", // tên trường / đơn vị
+        logoSrc: "logo-fpt.png", // đổi sang logo trường, ví dụ: "logo-thpt-abc.png"
+        name: "FPT / School Career Center", // tên trường / đơn vị
         sub: "Trắc nghiệm tính cách nghề nghiệp Holland RIASEC" // tagline dưới logo
     };
 
@@ -19,6 +19,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (brandSubEl && brandConfig.sub) {
         brandSubEl.textContent = brandConfig.sub;
     }
+
+    // ================ ADMIN PASSWORD =================
+    // Giáo viên có thể đổi mật khẩu Admin ở đây
+    const ADMIN_PASSWORD = "giaovien2025"; // đổi tuỳ ý
+    let adminUnlocked = false;
 
     // ===================== DATA ============================
     const riasecMeta = {
@@ -141,8 +146,8 @@ document.addEventListener("DOMContentLoaded", () => {
         C: "Bạn thiên về nhóm Truyền thống (Conventional): hợp công việc ổn định, có quy trình, số liệu rõ ràng, ít rủi ro và có trật tự."
     };
 
-    const questions = [ /* 60 câu – giống bản trước, giữ nguyên như bạn đã dùng */ 
-    // R - Realistic
+    const questions = [
+        // R - Realistic
         { id: 1, type: "R", text: "Tôi thích sửa chữa hoặc lắp ráp các thiết bị (xe, máy móc, đồ điện...)."},
         { id: 2, type: "R", text: "Tôi thích làm việc bằng tay hơn là chỉ ngồi bàn giấy."},
         { id: 3, type: "R", text: "Tôi cảm thấy thú vị khi sử dụng dụng cụ như búa, tua-vít, kìm..."},
@@ -213,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: 58, type: "C", text: "Tôi ít thích sự mơ hồ, thích biết rõ mình phải làm gì, deadline khi nào."},
         { id: 59, type: "C", text: "Tôi làm việc tốt hơn khi có quy định, quy trình được xây dựng sẵn."},
         { id: 60, type: "C", text: "Tôi thích cảm giác “mọi thứ gọn gàng, có trật tự” trong công việc và cuộc sống."}
-     ];
+    ];
 
     // ===================== DOM ============================
     const questionsContainer = document.getElementById("questions-container");
@@ -250,6 +255,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const pages = document.querySelectorAll(".page");
     const tabButtons = document.querySelectorAll(".tab-btn");
 
+    // Ô lọc trong Admin
+    const filterClassInput = document.getElementById("filter-class");
+    const filterFromDateInput = document.getElementById("filter-from-date");
+    const filterToDateInput = document.getElementById("filter-to-date");
+    const filterApplyBtn = document.getElementById("filter-apply-btn");
+    const filterResetBtn = document.getElementById("filter-reset-btn");
+
     let barChart = null;
     let radarChart = null;
     let lastResult = null;
@@ -268,6 +280,17 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.addEventListener("click", () => {
             const target = btn.dataset.target;
             if (btn.disabled) return;
+
+            // Nếu là tab Admin thì hỏi mật khẩu
+            if (target === "page-admin" && !adminUnlocked) {
+                const pwd = prompt("Nhập mật khẩu Admin (do giáo viên cung cấp):");
+                if (pwd !== ADMIN_PASSWORD) {
+                    alert("Mật khẩu không đúng. Vui lòng liên hệ giáo viên phụ trách.");
+                    return;
+                }
+                adminUnlocked = true;
+            }
+
             showPage(target);
         });
     });
@@ -581,15 +604,52 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function refreshHistoryTable() {
+    function getFilteredHistory() {
         const history = loadHistory();
+        const classFilter = (filterClassInput?.value || "").trim().toLowerCase();
+        const fromDateStr = filterFromDateInput?.value || "";
+        const toDateStr = filterToDateInput?.value || "";
+
+        if (!filterClassInput && !filterFromDateInput && !filterToDateInput) {
+            return history;
+        }
+
+        return history.filter(item => {
+            let ok = true;
+
+            if (classFilter) {
+                const cls = (item.studentClass || "").toLowerCase();
+                if (!cls.includes(classFilter)) ok = false;
+            }
+
+            if (fromDateStr) {
+                const from = new Date(fromDateStr);
+                const t = new Date(item.timestamp);
+                if (t < from) ok = false;
+            }
+
+            if (toDateStr) {
+                const to = new Date(toDateStr);
+                to.setDate(to.getDate() + 1);
+                const t = new Date(item.timestamp);
+                if (t >= to) ok = false;
+            }
+
+            return ok;
+        });
+    }
+
+    function refreshHistoryTable() {
+        const history = getFilteredHistory();
         historyBody.innerHTML = "";
+
         if (!history.length) {
             const tr = document.createElement("tr");
-            tr.innerHTML = `<td colspan="6">Chưa có dữ liệu lịch sử nào. Hãy lưu kết quả từ tab "Kết quả RIASEC".</td>`;
+            tr.innerHTML = `<td colspan="6">Không có dữ liệu lịch sử phù hợp với điều kiện lọc.</td>`;
             historyBody.appendChild(tr);
             return;
         }
+
         history.forEach(item => {
             const tr = document.createElement("tr");
             const dateStr = new Date(item.timestamp).toLocaleString("vi-VN");
@@ -744,6 +804,18 @@ document.addEventListener("DOMContentLoaded", () => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    });
+
+    // ===================== FILTER BUTTONS ==========================
+    filterApplyBtn?.addEventListener("click", () => {
+        refreshHistoryTable();
+    });
+
+    filterResetBtn?.addEventListener("click", () => {
+        if (filterClassInput) filterClassInput.value = "";
+        if (filterFromDateInput) filterFromDateInput.value = "";
+        if (filterToDateInput) filterToDateInput.value = "";
+        refreshHistoryTable();
     });
 
     // Init

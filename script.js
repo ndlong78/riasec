@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
     // ================ BRAND CONFIG (tuỳ chỉnh theo từng trường) =================
     const brandConfig = {
-        logoSrc: "logo-CBB.png", // đổi sang logo trường, ví dụ: "logo-thpt-abc.png"
-        name: "CBB / School Career Center", // tên trường / đơn vị
-        sub: "Trắc nghiệm tính cách nghề nghiệp Holland RIASEC" // tagline dưới logo
+        logoSrc: "logo-CBB.png",
+        name: "CBB / School Career Center",
+        sub: "Trắc nghiệm tính cách nghề nghiệp Holland RIASEC"
     };
 
     const brandLogoEl = document.getElementById("brand-logo");
@@ -20,10 +20,165 @@ document.addEventListener("DOMContentLoaded", () => {
         brandSubEl.textContent = brandConfig.sub;
     }
 
+    // ================ GITHUB CONFIG ⭐ MỚI =================
+    const GITHUB_CONFIG = {
+        owner: "ndlong78",           // ⚠️ ĐỔI: Tên GitHub của bạn
+        repo: "riasec-data-storage",             // ⚠️ ĐỔI: Tên repo vừa tạo
+        token: "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",            // ⚠️ ĐỔI: Token vừa copy
+        encryptionKey: "M$ifVhx9@%@wDV", // ⚠️ ĐỔI: Key mã hóa (giữ bí mật!)
+        enableGitHub: true                        // true = lưu GitHub, false = chỉ localStorage
+    };
+
     // ================ ADMIN PASSWORD =================
-    // Giáo viên có thể đổi mật khẩu Admin ở đây
-    const ADMIN_PASSWORD = "giaovien2025"; // đổi tuỳ ý
+    const ADMIN_PASSWORD = "NhatNam@2025#";
     let adminUnlocked = false;
+
+    // ===================== ENCRYPTION FUNCTIONS ⭐ MỚI ============================
+    function encryptData(data) {
+        try {
+            const jsonString = JSON.stringify(data);
+            const encrypted = CryptoJS.AES.encrypt(jsonString, GITHUB_CONFIG.encryptionKey).toString();
+            return encrypted;
+        } catch (error) {
+            console.error("Encryption error:", error);
+            return null;
+        }
+    }
+
+    function decryptData(encryptedText) {
+        try {
+            const decrypted = CryptoJS.AES.decrypt(encryptedText, GITHUB_CONFIG.encryptionKey);
+            const jsonString = decrypted.toString(CryptoJS.enc.Utf8);
+            return JSON.parse(jsonString);
+        } catch (error) {
+            console.error("Decryption error:", error);
+            return null;
+        }
+    }
+
+    // ===================== GITHUB API FUNCTIONS ⭐ MỚI ============================
+    async function saveToGitHub(result) {
+        if (!GITHUB_CONFIG.enableGitHub) {
+            console.log("GitHub sync disabled");
+            return { success: false, message: "GitHub sync disabled" };
+        }
+
+        try {
+            // Validate config
+            if (!GITHUB_CONFIG.owner || GITHUB_CONFIG.owner === "your-github-username") {
+                throw new Error("GitHub owner chưa được cấu hình");
+            }
+            if (!GITHUB_CONFIG.token || GITHUB_CONFIG.token === "ghp_YOUR_TOKEN_HERE") {
+                throw new Error("GitHub token chưa được cấu hình");
+            }
+
+            // Chuẩn bị dữ liệu mã hóa
+            const dataToEncrypt = {
+                studentName: result.studentName,
+                studentClass: result.studentClass,
+                studentId: result.studentId,
+                studentEmail: result.studentEmail,
+                scores: result.scores,
+                codeString: result.codeString,
+                timestamp: result.timestamp
+            };
+
+            const encryptedData = encryptData(dataToEncrypt);
+            if (!encryptedData) {
+                throw new Error("Không thể mã hóa dữ liệu");
+            }
+
+            // Tạo Issue title (không chứa thông tin nhạy cảm)
+            const date = new Date(result.timestamp);
+            const dateStr = date.toISOString().split('T')[0];
+            const issueTitle = `RIASEC-${result.codeString}-${dateStr}-${Date.now().toString().slice(-6)}`;
+
+            // Chuẩn bị Issue body
+            const issueBody = `### 🔒 Encrypted RIASEC Result
+
+**Result Code:** ${result.codeString}  
+**Date:** ${dateStr}  
+**Class:** ${result.studentClass || "N/A"}
+
+---
+
+**Encrypted Data:**
+\`\`\`
+${encryptedData}
+\`\`\`
+
+---
+*Use admin-decrypt.html tool to view full details*`;
+
+            // Gọi GitHub API
+            const apiUrl = `https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/issues`;
+            
+            const response = await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Authorization": `token ${GITHUB_CONFIG.token}`,
+                    "Accept": "application/vnd.github.v3+json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    title: issueTitle,
+                    body: issueBody,
+                    labels: ["riasec-result", result.studentClass || "unknown-class"]
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`GitHub API Error: ${response.status} - ${errorData.message || 'Unknown error'}`);
+            }
+
+            const data = await response.json();
+            console.log("✅ Saved to GitHub:", data.html_url);
+            
+            return {
+                success: true,
+                url: data.html_url,
+                issueNumber: data.number
+            };
+
+        } catch (error) {
+            console.error("❌ GitHub save error:", error);
+            return {
+                success: false,
+                message: error.message
+            };
+        }
+    }
+
+    // ===================== RATE LIMITING ⭐ MỚI ============================
+    function checkRateLimit(studentId) {
+        const today = new Date().toISOString().split('T')[0];
+        const rateLimitKey = `riasec_rate_${studentId}_${today}`;
+        const count = parseInt(localStorage.getItem(rateLimitKey) || "0");
+        
+        const MAX_SAVES_PER_DAY = 3;
+        
+        if (count >= MAX_SAVES_PER_DAY) {
+            return {
+                allowed: false,
+                remaining: 0,
+                message: `Bạn đã lưu ${count} lần hôm nay. Giới hạn: ${MAX_SAVES_PER_DAY} lần/ngày.`
+            };
+        }
+        
+        return {
+            allowed: true,
+            remaining: MAX_SAVES_PER_DAY - count,
+            message: `Còn ${MAX_SAVES_PER_DAY - count} lần lưu hôm nay.`
+        };
+    }
+
+    function incrementRateLimit(studentId) {
+        const today = new Date().toISOString().split('T')[0];
+        const rateLimitKey = `riasec_rate_${studentId}_${today}`;
+        const count = parseInt(localStorage.getItem(rateLimitKey) || "0");
+        localStorage.setItem(rateLimitKey, (count + 1).toString());
+    }
 
     // ===================== DATA ============================
     const riasecMeta = {
@@ -156,21 +311,19 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: 6, type: "R", text: "Tôi thích lắp ráp mô hình, robot hoặc LEGO."},
         { id: 7, type: "R", text: "Tôi muốn hiểu cách vận hành của các máy móc, thiết bị kỹ thuật."},
         { id: 8, type: "R", text: "Khi đồ trong nhà hỏng, tôi thường muốn tự mày mò sửa trước."},
-        { id: 9, type: "R", text: "Tôi thấy hài lòng khi hoàn thành một việc mang tính “tay chân” cụ thể."},
+        { id: 9, type: "R", text: "Tôi thấy hài lòng khi hoàn thành một việc mang tính "tay chân" cụ thể."},
         { id: 10, type: "R", text: "Tôi không ngại bị bẩn tay khi làm việc nếu đó là việc mình thích."},
-
         // I - Investigative
         { id: 11, type: "I", text: "Tôi thích tìm hiểu nguyên nhân phía sau một hiện tượng (vì sao lại xảy ra như vậy)."},
         { id: 12, type: "I", text: "Tôi hứng thú với việc đọc sách/website về khoa học, công nghệ hoặc kiến thức mới."},
         { id: 13, type: "I", text: "Tôi thích giải những bài toán khó hoặc câu đố logic, tư duy."},
-        { id: 14, type: "I", text: "Tôi thường đặt nhiều câu hỏi “vì sao” khi học một khái niệm mới."},
+        { id: 14, type: "I", text: "Tôi thường đặt nhiều câu hỏi "vì sao" khi học một khái niệm mới."},
         { id: 15, type: "I", text: "Tôi thích phân tích số liệu, biểu đồ hoặc thông tin để tìm ra kết luận."},
         { id: 16, type: "I", text: "Tôi cảm thấy thích thú khi thử nghiệm, làm thí nghiệm, kiểm chứng ý tưởng."},
         { id: 17, type: "I", text: "Tôi quan tâm đến các ngành như y khoa, công nghệ, khoa học dữ liệu hoặc nghiên cứu."},
         { id: 18, type: "I", text: "Tôi có xu hướng tra cứu thêm thông tin ngoài sách giáo khoa khi tò mò về một chủ đề."},
         { id: 19, type: "I", text: "Tôi thích làm việc độc lập, tập trung suy nghĩ hơn là phải giao tiếp liên tục."},
         { id: 20, type: "I", text: "Khi gặp một vấn đề, tôi thích phân tích từng bước và tìm giải pháp hợp lý."},
-
         // A - Artistic
         { id: 21, type: "A", text: "Tôi thích vẽ, thiết kế, chụp ảnh hoặc tạo nội dung sáng tạo."},
         { id: 22, type: "A", text: "Tôi thường để ý đến màu sắc, bố cục, thẩm mỹ xung quanh."},
@@ -182,7 +335,6 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: 28, type: "A", text: "Tôi thích không gian học tập/làm việc được trang trí đẹp và có cá tính."},
         { id: 29, type: "A", text: "Tôi không thích các công việc lặp lại, ít ý tưởng mới."},
         { id: 30, type: "A", text: "Tôi dễ bị thu hút bởi những sản phẩm/chiến dịch có thiết kế hoặc câu chuyện sáng tạo."},
-
         // S - Social
         { id: 31, type: "S", text: "Tôi thích giúp đỡ, lắng nghe và hỗ trợ bạn bè khi họ gặp khó khăn."},
         { id: 32, type: "S", text: "Tôi thấy thoải mái khi làm việc nhóm, trao đổi với người khác."},
@@ -194,14 +346,13 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: 38, type: "S", text: "Mọi người thường tìm đến tôi để tâm sự hoặc xin lời khuyên."},
         { id: 39, type: "S", text: "Tôi quan tâm đến môi trường học đường tích cực, thân thiện."},
         { id: 40, type: "S", text: "Tôi muốn công việc tương lai có ý nghĩa với cộng đồng, xã hội."},
-
         // E - Enterprising
         { id: 41, type: "E", text: "Tôi thích thuyết trình, thảo luận trước lớp hoặc đám đông."},
         { id: 42, type: "E", text: "Tôi cảm thấy hứng thú với ý tưởng kinh doanh, khởi nghiệp hoặc làm dự án riêng."},
         { id: 43, type: "E", text: "Tôi thích đặt mục tiêu rõ ràng và cố gắng đạt được (điểm số, cuộc thi, doanh thu...)."},
         { id: 44, type: "E", text: "Tôi không ngại nói chuyện, thương lượng hoặc thuyết phục người khác."},
         { id: 45, type: "E", text: "Tôi quan tâm đến các ngành như kinh doanh, marketing, tài chính, quản lý."},
-        { id: 46, type: "E", text: "Tôi thích đóng vai trò “leader” (trưởng nhóm, lớp trưởng, điều phối hoạt động...)."},
+        { id: 46, type: "E", text: "Tôi thích đóng vai trò "leader" (trưởng nhóm, lớp trưởng, điều phối hoạt động...)."},
         { id: 47, type: "E", text: "Tôi muốn công việc có cơ hội thăng tiến, thu nhập cao nếu nỗ lực tốt."},
         { id: 48, type: "E", text: "Tôi thích tìm cách “bán” ý tưởng của mình cho người khác."},
         { id: 49, type: "E", text: "Tôi sẵn sàng chấp nhận rủi ro hợp lý để theo đuổi cơ hội mới."},
@@ -219,6 +370,8 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: 59, type: "C", text: "Tôi làm việc tốt hơn khi có quy định, quy trình được xây dựng sẵn."},
         { id: 60, type: "C", text: "Tôi thích cảm giác “mọi thứ gọn gàng, có trật tự” trong công việc và cuộc sống."}
     ];
+// ===== TIẾP THEO TỪ PHẦN 1 =====
+// (Copy toàn bộ phần này vào cuối file script.js)
 
     // ===================== DOM ============================
     const questionsContainer = document.getElementById("questions-container");
@@ -255,7 +408,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const pages = document.querySelectorAll(".page");
     const tabButtons = document.querySelectorAll(".tab-btn");
 
-    // Ô lọc trong Admin
     const filterClassInput = document.getElementById("filter-class");
     const filterFromDateInput = document.getElementById("filter-from-date");
     const filterToDateInput = document.getElementById("filter-to-date");
@@ -281,7 +433,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const target = btn.dataset.target;
             if (btn.disabled) return;
 
-            // Nếu là tab Admin thì hỏi mật khẩu
             if (target === "page-admin" && !adminUnlocked) {
                 const pwd = prompt("Nhập mật khẩu Admin (do giáo viên cung cấp):");
                 if (pwd !== ADMIN_PASSWORD) {
@@ -610,7 +761,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const fromDateStr = filterFromDateInput?.value || "";
         const toDateStr = filterToDateInput?.value || "";
 
-        if (!filterClassInput && !filterFromDateInput && !filterToDateInput) {
+        if (!classFilter && !fromDateStr && !toDateStr) {
             return history;
         }
 
@@ -665,16 +816,66 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    saveLocalBtn.addEventListener("click", () => {
+    // ⭐ CẬP NHẬT: Nút lưu giờ lưu cả GitHub + localStorage
+    saveLocalBtn.addEventListener("click", async () => {
         if (!lastResult) {
             alert("Bạn cần hoàn thành bài test và xem kết quả trước khi lưu.");
             return;
         }
-        const history = loadHistory();
-        history.unshift(lastResult);
-        saveHistory(history);
+
+        // Kiểm tra rate limit
+        const studentId = lastResult.studentId || "unknown";
+        const rateCheck = checkRateLimit(studentId);
+        
+        if (!rateCheck.allowed) {
+            alert(rateCheck.message);
+            return;
+        }
+
+        // Disable button và hiển thị loading
+        saveLocalBtn.disabled = true;
+        const originalHTML = saveLocalBtn.innerHTML;
+        saveLocalBtn.innerHTML = '<span class="icon">⏳</span> Đang lưu...';
+
+        let messages = [];
+
+        // 1. Lưu localStorage (backup)
+        try {
+            const history = loadHistory();
+            history.unshift(lastResult);
+            saveHistory(history);
+            messages.push("✅ Đã lưu vào trình duyệt (localStorage)");
+        } catch (e) {
+            messages.push("⚠️ Không thể lưu localStorage: " + e.message);
+        }
+
+        // 2. Lưu GitHub (nếu bật)
+        if (GITHUB_CONFIG.enableGitHub) {
+            const githubResult = await saveToGitHub(lastResult);
+            
+            if (githubResult.success) {
+                messages.push(`✅ Đã lưu lên GitHub Issue #${githubResult.issueNumber}`);
+                messages.push(`🔗 Link: ${githubResult.url}`);
+                
+                // Tăng rate limit counter
+                incrementRateLimit(studentId);
+            } else {
+                messages.push("⚠️ Không thể lưu lên GitHub: " + githubResult.message);
+                messages.push("💡 Kiểm tra lại GitHub Config trong script.js");
+            }
+        } else {
+            messages.push("ℹ️ GitHub sync đã tắt (chỉ lưu localStorage)");
+        }
+
+        // Hiển thị kết quả
+        alert(messages.join("\n\n"));
+
+        // Refresh history table
         refreshHistoryTable();
-        alert("Đã lưu kết quả vào lịch sử trên máy.");
+
+        // Reset button
+        saveLocalBtn.disabled = false;
+        saveLocalBtn.innerHTML = originalHTML;
     });
 
     // ===================== DOWNLOAD TXT ============================

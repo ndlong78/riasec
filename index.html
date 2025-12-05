@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Trắc nghiệm Holland RIASEC - Định hướng nghề nghiệp</title>
+    <title>Trắc nghiệm Holland RIASEC - CBB & Family Career Center</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,15 +17,14 @@
     <!-- BRAND BAR -->
     <div class="brand-bar">
         <div class="brand-left">
-            <!-- Logo: có thể thay file logo khác, hoặc để trống -->
-            <img src="logo-CBB.png" alt="Logo trường" class="brand-logo" id="brand-logo">
+            <img src="logo-cbb.png" alt="Logo CBB & Family" class="brand-logo" id="brand-logo">
             <div class="brand-text">
-                <div class="brand-name" id="brand-name">CBB & Family / School Career Center</div>
-                <div classbrand-sub" id="brand-sub">Trắc nghiệm tính cách nghề nghiệp Holland RIASEC</div>
+                <div class="brand-name" id="brand-name">CBB & Family</div>
+                <div class="brand-sub" id="brand-sub">Trắc nghiệm tính cách nghề nghiệp Holland RIASEC</div>
             </div>
         </div>
         <div class="brand-right">
-            <span class="brand-tag">Định hướng nghề nghiệp THPT</span>
+            <span class="brand-tag">CBB & Family Career Center</span>
         </div>
     </div>
 
@@ -110,8 +109,8 @@
                                 <li>2️⃣ Chọn tab <strong>“Làm bài trắc nghiệm”</strong>.</li>
                                 <li>3️⃣ Trả lời hết 60 câu hỏi theo mức độ giống bạn.</li>
                                 <li>4️⃣ Bấm <strong>“Xem kết quả RIASEC”</strong> → tab <strong>“Kết quả RIASEC”</strong> sẽ mở.</li>
-                                <li>5️⃣ Tại tab Kết quả, bạn có thể <strong>lưu lịch sử</strong>, <strong>gửi kết quả lên GitHub</strong> hoặc <strong>tải file kết quả</strong>.</li>
-                                <li>6️⃣ Tab <strong>Admin (Lịch sử)</strong> dùng cho giáo viên xem tổng hợp và xuất CSV.</li>
+                                <li>5️⃣ Hệ thống có thể <strong>tự động lưu lên GitHub</strong> (nếu giáo viên đã cấu hình ở tab Admin).</li>
+                                <li>6️⃣ Tại tab Kết quả, bạn có thể <strong>lưu lịch sử</strong>, <strong>tải file kết quả</strong> hoặc <strong>in PDF</strong>.</li>
                             </ul>
                         </div>
                     </div>
@@ -124,12 +123,6 @@
                             <div class="riasec-chip"><strong>S</strong> · Xã hội (Social)</div>
                             <div class="riasec-chip"><strong>E</strong> · Doanh nghiệp (Enterprising)</div>
                             <div class="riasec-chip"><strong>C</strong> · Truyền thống (Conventional)</div>
-                        </div>
-                        <div style="margin-top: 10px; font-size: 0.88rem;">
-                            <strong>Ví dụ mã RIASEC:</strong><br>
-                            • <strong>ISA</strong>: Nghiên cứu – Xã hội – Nghệ thuật → hợp <em>Y khoa, Tâm lý, Giáo dục</em>.<br>
-                            • <strong>SEC</strong>: Xã hội – Doanh nghiệp – Truyền thống → hợp <em>Kinh doanh, Nhân sự, Du lịch</em>.<br>
-                            • <strong>RIA</strong>: Thực tế – Nghiên cứu – Nghệ thuật → hợp <em>Kỹ thuật, Công nghệ, Thiết kế kỹ thuật</em>.
                         </div>
                     </div>
                 </div>
@@ -193,8 +186,8 @@
                 </div>
 
                 <p class="result-meta">
-                    Đây là kết quả gợi ý dựa trên 60 câu trả lời của bạn. Hãy xem điểm từng nhóm, đọc phần phân tích
-                    và gợi ý ngành học phù hợp với bậc đại học / cao đẳng tại Việt Nam.
+                    Đây là kết quả gợi ý dựa trên 60 câu trả lời của bạn. Hệ thống có thể tự lưu kết quả lên GitHub
+                    (nếu giáo viên đã cấu hình), đồng thời bạn có thể lưu cục bộ và tải file TXT.
                 </p>
 
                 <div class="overall-eval" id="overall-eval">
@@ -224,11 +217,11 @@
                                     <span class="icon">🖨️</span> In / Lưu PDF
                                 </button>
                                 <button type="button" class="btn btn-primary" id="send-github-btn">
-                                    <span class="icon">☁️</span> Gửi kết quả lên GitHub
+                                    <span class="icon">☁️</span> Gửi lại lên GitHub (thủ công)
                                 </button>
                             </div>
                             <p class="small-muted">
-                                Chức năng GitHub dùng cho giáo viên: cần cấu hình Token & repo trong tab Admin.
+                                Auto-save lên GitHub chỉ hoạt động trên máy/trình duyệt đã cấu hình Token trong tab Admin.
                             </p>
                         </div>
                     </div>
@@ -239,7 +232,6 @@
                 </div>
 
                 <div class="riasec-detail-grid" id="riasec-detail-grid">
-                    <!-- Filled by JS -->
                 </div>
 
                 <div class="btn-row" style="margin-top: 12px;">
@@ -262,10 +254,9 @@
                 </div>
                 <p class="result-meta">
                     Trang này dành cho giáo viên/cố vấn hướng nghiệp xem tổng hợp các kết quả đã được lưu trên máy này,
-                    cấu hình GitHub để backup lên repo, và xuất CSV thống kê.
+                    cấu hình GitHub để backup lên repo chung, và xuất CSV thống kê.
                 </p>
 
-                <!-- Bộ lọc -->
                 <div class="export-box">
                     <h3>🔎 Bộ lọc lịch sử (local)</h3>
                     <div class="student-grid" style="margin-bottom: 8px;">
@@ -293,21 +284,18 @@
                             <span class="icon">📤</span> Xuất toàn bộ lịch sử (.csv)
                         </button>
                     </div>
-                    <p class="small-muted">
-                        Lọc chỉ ảnh hưởng đến bảng hiển thị bên dưới. Nút Export CSV vẫn xuất <strong>toàn bộ lịch sử</strong> trên máy.
-                    </p>
                 </div>
 
                 <!-- Cấu hình GitHub -->
                 <div class="export-box">
                     <h3>☁️ Cấu hình GitHub lưu dữ liệu (chỉ giáo viên)</h3>
                     <p class="small-muted">
-                        Token và passphrase chỉ lưu tạm trong <strong>session</strong> của trình duyệt này, không ghi vào mã nguồn.
+                        Token và passphrase chỉ lưu trong <strong>localStorage</strong> của trình duyệt này, không ghi vào mã nguồn.
                     </p>
                     <div class="student-grid" style="margin-bottom: 8px;">
                         <div class="form-group">
                             <label for="gh-owner">GitHub Owner / Tổ chức</label>
-                            <input type="text" id="gh-owner" placeholder="vd: trangtrang">
+                            <input type="text" id="gh-owner" placeholder="vd: cbb-family">
                         </div>
                         <div class="form-group">
                             <label for="gh-repo">Repository</label>
@@ -315,7 +303,7 @@
                         </div>
                         <div class="form-group">
                             <label for="gh-token">GitHub Token (PAT)</label>
-                            <input type="password" id="gh-token" placeholder="Dán PAT vào đây">
+                            <input type="password" id="gh-token" placeholder="Dán PAT vào đây (contents:write)">
                         </div>
                         <div class="form-group">
                             <label for="gh-passphrase">Passphrase mã hóa (AES)</label>
@@ -324,7 +312,7 @@
                     </div>
                     <div class="btn-row">
                         <button type="button" class="btn btn-outline" id="gh-save-config-btn">
-                            <span class="icon">💡</span> Lưu cấu hình (session)
+                            <span class="icon">💡</span> Lưu cấu hình (trên máy này)
                         </button>
                         <button type="button" class="btn btn-outline" id="gh-clear-config-btn">
                             <span class="icon">🧹</span> Xóa cấu hình
@@ -332,14 +320,14 @@
                     </div>
                     <p class="small-muted">
                         Cấu hình này <strong>không</strong> được commit lên GitHub.  
-                        Nên dùng token <strong>giới hạn quyền</strong> (fine-grained) chỉ cho repo <code>riasec-data-storage</code>.
+                        Nên dùng token <strong>fine-grained</strong> chỉ cho repo <code>riasec-data-storage</code> với quyền <code>contents: read/write</code>.
                     </p>
                 </div>
 
                 <div class="history-card" id="history-card">
                     <h3>📜 Lịch sử kết quả trên máy</h3>
                     <p class="small-muted">
-                        Nếu mở trên máy khác hoặc trình duyệt khác thì lịch sử sẽ trống vì không dùng chung dữ liệu.
+                        Nếu mở trên máy khác hoặc trình duyệt khác thì lịch sử local sẽ trống vì không dùng chung dữ liệu.
                     </p>
                     <table id="history-table">
                         <thead>
@@ -353,7 +341,6 @@
                         </tr>
                         </thead>
                         <tbody id="history-body">
-                        <!-- Filled by JS -->
                         </tbody>
                     </table>
                 </div>
@@ -363,7 +350,7 @@
 
     <footer class="footer">
         <span><strong>Lưu ý:</strong> Bài test mang tính định hướng, bạn nên trao đổi thêm với thầy cô, phụ huynh hoặc chuyên gia tư vấn.</span>
-        <span class="small-muted">Holland RIASEC · Phiên bản demo dành cho học sinh Việt Nam · Developed for CBB & Family / School</span>
+        <span class="small-muted">Holland RIASEC · Phiên bản dành cho học sinh Việt Nam · Developed for CBB & Family</span>
     </footer>
 </div>
 

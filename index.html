@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head:
+<head>
     <meta charset="UTF-8">
     <title>Trắc nghiệm Holland RIASEC - Định hướng nghề nghiệp</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +16,7 @@
             <!-- Logo: có thể thay file logo khác, hoặc để trống -->
             <img src="logo-fpt.png" alt="Logo trường" class="brand-logo" id="brand-logo">
             <div class="brand-text">
-                <div class="brand-name" id="brand-name">CBB / School Career Center</div>
+                <div class="brand-name" id="brand-name">FPT / School Career Center</div>
                 <div class="brand-sub" id="brand-sub">Trắc nghiệm tính cách nghề nghiệp Holland RIASEC</div>
             </div>
         </div>
@@ -255,15 +255,36 @@
                     Dữ liệu <strong>KHÔNG</strong> được gửi lên server, chỉ lưu trong trình duyệt thông qua localStorage.
                 </p>
 
+                <!-- Bộ lọc -->
                 <div class="export-box">
-                    <h3>🗂 Thao tác lịch sử</h3>
+                    <h3>🔎 Bộ lọc lịch sử</h3>
+                    <div class="student-grid" style="margin-bottom: 8px;">
+                        <div class="form-group">
+                            <label for="filter-class">Lọc theo lớp</label>
+                            <input type="text" id="filter-class" placeholder="VD: 10A1">
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-from-date">Từ ngày</label>
+                            <input type="date" id="filter-from-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="filter-to-date">Đến ngày</label>
+                            <input type="date" id="filter-to-date">
+                        </div>
+                    </div>
                     <div class="btn-row">
+                        <button type="button" class="btn btn-outline" id="filter-apply-btn">
+                            <span class="icon">✅</span> Áp dụng lọc
+                        </button>
+                        <button type="button" class="btn btn-outline" id="filter-reset-btn">
+                            <span class="icon">♻️</span> Xóa lọc
+                        </button>
                         <button type="button" class="btn btn-outline" id="export-csv-btn">
                             <span class="icon">📤</span> Xuất toàn bộ lịch sử (.csv)
                         </button>
                     </div>
                     <p class="small-muted">
-                        File CSV sẽ gồm: Thời gian, Họ tên, Lớp, Mã HS, Email, Mã RIASEC, điểm R–I–A–S–E–C.
+                        Lọc chỉ ảnh hưởng đến bảng hiển thị bên dưới. Nút Export CSV vẫn xuất <strong>toàn bộ lịch sử</strong>.
                     </p>
                 </div>
 

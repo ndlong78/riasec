@@ -6,10 +6,11 @@
 const BRAND_CONFIG = (window.RIASEC_CONFIG && window.RIASEC_CONFIG.brand) || {
 name: "CBB & Family",
 tagline: "Cùng con định hướng tương lai",
-logo: "logo-cbb.png"
+logo: "logo-cbb.png",
 };
 
-const ADMIN_PASSWORD = (window.RIASEC_CONFIG && window.RIASEC_CONFIG.adminPassword) || "cbbadmin123";
+const ADMIN_PASSWORD =
+(window.RIASEC_CONFIG && window.RIASEC_CONFIG.adminPassword) || "cbbadmin123";
 
 // Keys localStorage
 const LS_RESULTS_KEY = "riasecResults";
@@ -30,8 +31,8 @@ careers: [
 "Thợ sửa chữa ô tô",
 "Thợ điện",
 "Kỹ thuật viên máy tính (hardware)",
-"Kỹ sư điện"
-]
+"Kỹ sư điện",
+],
 },
 I: {
 name: "Investigative – Nghiên cứu",
@@ -41,8 +42,8 @@ careers: [
 "Lập trình viên",
 "Kỹ sư phần mềm",
 "Nhà sinh học",
-"Nhà nghiên cứu hóa học"
-]
+"Nhà nghiên cứu hóa học",
+],
 },
 A: {
 name: "Artistic – Nghệ thuật",
@@ -52,8 +53,8 @@ careers: [
 "Nhạc sĩ / Ca sĩ",
 "Nhà làm phim",
 "Kiến trúc sư",
-"Nhà thiết kế thời trang"
-]
+"Nhà thiết kế thời trang",
+],
 },
 S: {
 name: "Social – Xã hội",
@@ -63,8 +64,8 @@ careers: [
 "Cố vấn tâm lý",
 "Nhân viên công tác xã hội",
 "Điều dưỡng",
-"Chuyên viên đào tạo"
-]
+"Chuyên viên đào tạo",
+],
 },
 E: {
 name: "Enterprising – Doanh nghiệp",
@@ -74,8 +75,8 @@ careers: [
 "Quản lý kinh doanh",
 "Chuyên viên marketing",
 "Nhân viên bán hàng",
-"Chuyên viên tài chính"
-]
+"Chuyên viên tài chính",
+],
 },
 C: {
 name: "Conventional – Quy ước",
@@ -85,9 +86,9 @@ careers: [
 "Nhân viên hành chính",
 "Chuyên viên dữ liệu",
 "Thư ký văn phòng",
-"Nhân viên ngân hàng"
-]
-}
+"Nhân viên ngân hàng",
+],
+},
 };
 
 // ==============================
@@ -95,65 +96,301 @@ careers: [
 // ==============================
 const questions = [
 { id: 1, code: "R", text: "Em thích sửa chữa, lắp ráp các đồ vật, máy móc trong nhà." },
-{ id: 2, code: "R", text: "Em thích làm những hoạt động ngoài trời, vận động tay chân hơn là ngồi một chỗ." },
-{ id: 3, code: "R", text: "Em thấy hứng thú với các dụng cụ, thiết bị kỹ thuật (máy tính, máy móc, công cụ...)." },
-{ id: 4, code: "R", text: "Em thích làm các công việc cần sức khỏe, sự dẻo dai (thể thao, lao động tay chân...)."},
-{ id: 5, code: "R", text: "Em cảm thấy thoải mái khi làm việc trong môi trường nhà xưởng, công trường, phòng thí nghiệm hơn là văn phòng." },
-{ id: 6, code: "R", text: "Em thích sử dụng, điều khiển các loại máy móc, thiết bị." },
-{ id: 7, code: "I", text: "Em thích tìm hiểu nguyên nhân, cách thức hoạt động của sự vật, hiện tượng." },
-{ id: 8, code: "I", text: "Em thích đọc các tài liệu khoa học, khám phá, nghiên cứu." },
-{ id: 9, code: "I", text: "Em hay đặt câu hỏi 'vì sao?', 'tại sao?', thích đào sâu vấn đề." },
-{ id: 10, code: "I", text: "Em thích làm các bài toán khó, câu đố logic, thử thách trí tuệ." },
-{ id: 11, code: "I", text: "Em quan tâm đến các ngành như khoa học, kỹ thuật, y khoa, công nghệ." },
-{ id: 12, code: "I", text: "Em thích thu thập, phân tích dữ liệu để rút ra kết luận." },
-{ id: 13, code: "A", text: "Em thích vẽ tranh, thiết kế, trang trí, chụp ảnh hoặc các hoạt động nghệ thuật khác." },
-{ id: 14, code: "A", text: "Em thích nghe nhạc, chơi nhạc cụ, hát hoặc sáng tác." },
-{ id: 15, code: "A", text: "Em thích viết lách (truyện, thơ, nhật ký, blog...)."},
-{ id: 16, code: "A", text: "Em thích tham gia các hoạt động biểu diễn (kịch, múa, diễn xuất...)."},
-{ id: 17, code: "A", text: "Em thấy mình khá sáng tạo, hay nghĩ ra ý tưởng mới lạ." },
-{ id: 18, code: "A", text: "Em thích môi trường làm việc tự do, không quá gò bó theo khuôn mẫu." },
-{ id: 19, code: "S", text: "Em thích giúp đỡ người khác khi họ gặp khó khăn." },
-{ id: 20, code: "S", text: "Em hay lắng nghe tâm sự của bạn bè, người thân." },
-{ id: 21, code: "S", text: "Em thích tham gia các hoạt động tình nguyện, hoạt động cộng đồng." },
-{ id: 22, code: "S", text: "Em thích hướng dẫn, giảng giải cho người khác hiểu một vấn đề." },
-{ id: 23, code: "S", text: "Em quan tâm đến cảm xúc, suy nghĩ của người khác." },
-{ id: 24, code: "S", text: "Em muốn làm việc trong môi trường có nhiều sự tương tác, giao tiếp với con người." },
-{ id: 25, code: "E", text: "Em thích đứng ra tổ chức hoạt động, sự kiện cho nhóm / lớp." },
-{ id: 26, code: "E", text: "Em tự tin khi thuyết trình, nói chuyện trước đám đông." },
-{ id: 27, code: "E", text: "Em thích thuyết phục người khác làm theo ý tưởng của mình." },
-{ id: 28, code: "E", text: "Em quan tâm đến kinh doanh, khởi nghiệp, bán hàng." },
-{ id: 29, code: "E", text: "Em sẵn sàng chấp nhận rủi ro để thử một cơ hội mới." },
-{ id: 30, code: "E", text: "Em thích được lãnh đạo, dẫn dắt một nhóm người." },
-{ id: 31, code: "C", text: "Em thích làm việc với giấy tờ, số liệu, bảng biểu." },
-{ id: 32, code: "C", text: "Em cẩn thận, tỉ mỉ, thích mọi thứ rõ ràng, ngăn nắp." },
-{ id: 33, code: "C", text: "Em thích tuân thủ quy trình, nội quy, hướng dẫn cụ thể." },
-{ id: 34, code: "C", text: "Em thấy mình phù hợp với các công việc văn phòng, hành chính." },
-{ id: 35, code: "C", text: "Em thích nhập liệu, xử lý thông tin trên máy tính." },
-{ id: 36, code: "C", text: "Em thường sắp xếp công việc / đồ dùng theo trật tự cố định." },
-{ id: 37, code: "R", text: "Em thích các môn học liên quan đến công nghệ, kỹ thuật, kỹ năng thực hành." },
-{ id: 38, code: "I", text: "Em thích các môn học đòi hỏi suy luận, tính toán, phân tích (Toán, Lý, Hóa...)."},
-{ id: 39, code: "A", text: "Em thích các môn học liên quan đến nghệ thuật, mỹ thuật, âm nhạc, văn học." },
-{ id: 40, code: "S", text: "Em thích các hoạt động nhóm, làm việc với nhiều người." },
-{ id: 41, code: "E", text: "Em thích tham gia các cuộc thi, tranh luận, hùng biện." },
-{ id: 42, code: "C", text: "Em thích làm các bài tập cần ghi nhớ, sắp xếp thông tin có trình tự." },
-{ id: 43, code: "R", text: "Em thích sửa chữa các thiết bị điện tử, máy tính, điện thoại." },
-{ id: 44, code: "I", text: "Em thích tự tìm hiểu, mày mò kiến thức mới qua sách, internet." },
-{ id: 45, code: "A", text: "Em thích tự thiết kế poster, slide, bài trình bày đẹp mắt." },
-{ id: 46, code: "S", text: "Em thích hỗ trợ bạn bè trong học tập hoặc trong công việc nhóm." },
-{ id: 47, code: "E", text: "Em thích tham gia các CLB lãnh đạo, kinh doanh, khởi nghiệp." },
-{ id: 48, code: "C", text: "Em thích ghi chép, lưu trữ, quản lý thông tin cẩn thận." },
-{ id: 49, code: "R", text: "Em thích các nghề liên quan đến kỹ thuật, công nghệ, xây dựng, cơ khí." },
-{ id: 50, code: "I", text: "Em thích các nghề liên quan đến nghiên cứu khoa học, y tế, công nghệ cao." },
-{ id: 51, code: "A", text: "Em thích các nghề liên quan đến sáng tạo nội dung, thiết kế, nghệ thuật." },
-{ id: 52, code: "S", text: "Em thích các nghề liên quan đến giáo dục, tâm lý, y tế cộng đồng, xã hội." },
-{ id: 53, code: "E", text: "Em thích các nghề liên quan đến kinh doanh, quản lý, marketing, tài chính." },
-{ id: 54, code: "C", text: "Em thích các nghề liên quan đến kế toán, kiểm toán, hành chính, văn phòng." },
-{ id: 55, code: "R", text: "Em thích sử dụng các công cụ, máy móc để tạo ra hoặc sửa chữa sản phẩm." },
-{ id: 56, code: "I", text: "Em thích phân tích số liệu, biểu đồ, báo cáo để hiểu sâu vấn đề." },
-{ id: 57, code: "A", text: "Em thích thể hiện bản thân qua phong cách, sản phẩm sáng tạo của mình." },
-{ id: 58, code: "S", text: "Em thấy mình dễ đồng cảm, thấu hiểu cảm xúc của người khác." },
-{ id: 59, code: "E", text: "Em thích đặt mục tiêu lớn và nỗ lực để đạt được, thích cảm giác chinh phục." },
-{ id: 60, code: "C", text: "Em thấy yên tâm khi công việc có quy trình rõ ràng, ít thay đổi, ít rủi ro." }
+{
+id: 2,
+code: "R",
+text: "Em thích làm những hoạt động ngoài trời, vận động tay chân hơn là ngồi một chỗ.",
+},
+{
+id: 3,
+code: "R",
+text: "Em thấy hứng thú với các dụng cụ, thiết bị kỹ thuật (máy tính, máy móc, công cụ...).",
+},
+{
+id: 4,
+code: "R",
+text: "Em thích làm các công việc cần sức khỏe, sự dẻo dai (thể thao, lao động tay chân...).",
+},
+{
+id: 5,
+code: "R",
+text: "Em cảm thấy thoải mái khi làm việc trong môi trường nhà xưởng, công trường, phòng thí nghiệm hơn là văn phòng.",
+},
+{
+id: 6,
+code: "R",
+text: "Em thích sử dụng, điều khiển các loại máy móc, thiết bị.",
+},
+{
+id: 7,
+code: "I",
+text: "Em thích tìm hiểu nguyên nhân, cách thức hoạt động của sự vật, hiện tượng.",
+},
+{
+id: 8,
+code: "I",
+text: "Em thích đọc các tài liệu khoa học, khám phá, nghiên cứu.",
+},
+{
+id: 9,
+code: "I",
+text: "Em hay đặt câu hỏi 'vì sao?', 'tại sao?', thích đào sâu vấn đề.",
+},
+{
+id: 10,
+code: "I",
+text: "Em thích làm các bài toán khó, câu đố logic, thử thách trí tuệ.",
+},
+{
+id: 11,
+code: "I",
+text: "Em quan tâm đến các ngành như khoa học, kỹ thuật, y khoa, công nghệ.",
+},
+{
+id: 12,
+code: "I",
+text: "Em thích thu thập, phân tích dữ liệu để rút ra kết luận.",
+},
+{
+id: 13,
+code: "A",
+text: "Em thích vẽ tranh, thiết kế, trang trí, chụp ảnh hoặc các hoạt động nghệ thuật khác.",
+},
+{
+id: 14,
+code: "A",
+text: "Em thích nghe nhạc, chơi nhạc cụ, hát hoặc sáng tác.",
+},
+{
+id: 15,
+code: "A",
+text: "Em thích viết lách (truyện, thơ, nhật ký, blog...).",
+},
+{
+id: 16,
+code: "A",
+text: "Em thích tham gia các hoạt động biểu diễn (kịch, múa, diễn xuất...).",
+},
+{
+id: 17,
+code: "A",
+text: "Em thấy mình khá sáng tạo, hay nghĩ ra ý tưởng mới lạ.",
+},
+{
+id: 18,
+code: "A",
+text: "Em thích môi trường làm việc tự do, không quá gò bó theo khuôn mẫu.",
+},
+{
+id: 19,
+code: "S",
+text: "Em thích giúp đỡ người khác khi họ gặp khó khăn.",
+},
+{
+id: 20,
+code: "S",
+text: "Em hay lắng nghe tâm sự của bạn bè, người thân.",
+},
+{
+id: 21,
+code: "S",
+text: "Em thích tham gia các hoạt động tình nguyện, hoạt động cộng đồng.",
+},
+{
+id: 22,
+code: "S",
+text: "Em thích hướng dẫn, giảng giải cho người khác hiểu một vấn đề.",
+},
+{
+id: 23,
+code: "S",
+text: "Em quan tâm đến cảm xúc, suy nghĩ của người khác.",
+},
+{
+id: 24,
+code: "S",
+text: "Em muốn làm việc trong môi trường có nhiều sự tương tác, giao tiếp với con người.",
+},
+{
+id: 25,
+code: "E",
+text: "Em thích đứng ra tổ chức hoạt động, sự kiện cho nhóm / lớp.",
+},
+{
+id: 26,
+code: "E",
+text: "Em tự tin khi thuyết trình, nói chuyện trước đám đông.",
+},
+{
+id: 27,
+code: "E",
+text: "Em thích thuyết phục người khác làm theo ý tưởng của mình.",
+},
+{
+id: 28,
+code: "E",
+text: "Em quan tâm đến kinh doanh, khởi nghiệp, bán hàng.",
+},
+{
+id: 29,
+code: "E",
+text: "Em sẵn sàng chấp nhận rủi ro để thử một cơ hội mới.",
+},
+{
+id: 30,
+code: "E",
+text: "Em thích được lãnh đạo, dẫn dắt một nhóm người.",
+},
+{
+id: 31,
+code: "C",
+text: "Em thích làm việc với giấy tờ, số liệu, bảng biểu.",
+},
+{
+id: 32,
+code: "C",
+text: "Em cẩn thận, tỉ mỉ, thích mọi thứ rõ ràng, ngăn nắp.",
+},
+{
+id: 33,
+code: "C",
+text: "Em thích tuân thủ quy trình, nội quy, hướng dẫn cụ thể.",
+},
+{
+id: 34,
+code: "C",
+text: "Em thấy mình phù hợp với các công việc văn phòng, hành chính.",
+},
+{
+id: 35,
+code: "C",
+text: "Em thích nhập liệu, xử lý thông tin trên máy tính.",
+},
+{
+id: 36,
+code: "C",
+text: "Em thường sắp xếp công việc / đồ dùng theo trật tự cố định.",
+},
+{
+id: 37,
+code: "R",
+text: "Em thích các môn học liên quan đến công nghệ, kỹ thuật, kỹ năng thực hành.",
+},
+{
+id: 38,
+code: "I",
+text: "Em thích các môn học đòi hỏi suy luận, tính toán, phân tích (Toán, Lý, Hóa...).",
+},
+{
+id: 39,
+code: "A",
+text: "Em thích các môn học liên quan đến nghệ thuật, mỹ thuật, âm nhạc, văn học.",
+},
+{
+id: 40,
+code: "S",
+text: "Em thích các hoạt động nhóm, làm việc với nhiều người.",
+},
+{
+id: 41,
+code: "E",
+text: "Em thích tham gia các cuộc thi, tranh luận, hùng biện.",
+},
+{
+id: 42,
+code: "C",
+text: "Em thích làm các bài tập cần ghi nhớ, sắp xếp thông tin có trình tự.",
+},
+{
+id: 43,
+code: "R",
+text: "Em thích sửa chữa các thiết bị điện tử, máy tính, điện thoại.",
+},
+{
+id: 44,
+code: "I",
+text: "Em thích tự tìm hiểu, mày mò kiến thức mới qua sách, internet.",
+},
+{
+id: 45,
+code: "A",
+text: "Em thích tự thiết kế poster, slide, bài trình bày đẹp mắt.",
+},
+{
+id: 46,
+code: "S",
+text: "Em thích hỗ trợ bạn bè trong học tập hoặc trong công việc nhóm.",
+},
+{
+id: 47,
+code: "E",
+text: "Em thích tham gia các CLB lãnh đạo, kinh doanh, khởi nghiệp.",
+},
+{
+id: 48,
+code: "C",
+text: "Em thích ghi chép, lưu trữ, quản lý thông tin cẩn thận.",
+},
+{
+id: 49,
+code: "R",
+text: "Em thích các nghề liên quan đến kỹ thuật, công nghệ, xây dựng, cơ khí.",
+},
+{
+id: 50,
+code: "I",
+text: "Em thích các nghề liên quan đến nghiên cứu khoa học, y tế, công nghệ cao.",
+},
+{
+id: 51,
+code: "A",
+text: "Em thích các nghề liên quan đến sáng tạo nội dung, thiết kế, nghệ thuật.",
+},
+{
+id: 52,
+code: "S",
+text: "Em thích các nghề liên quan đến giáo dục, tâm lý, y tế cộng đồng, xã hội.",
+},
+{
+id: 53,
+code: "E",
+text: "Em thích các nghề liên quan đến kinh doanh, quản lý, marketing, tài chính.",
+},
+{
+id: 54,
+code: "C",
+text: "Em thích các nghề liên quan đến kế toán, kiểm toán, hành chính, văn phòng.",
+},
+{
+id: 55,
+code: "R",
+text: "Em thích sử dụng các công cụ, máy móc để tạo ra hoặc sửa chữa sản phẩm.",
+},
+{
+id: 56,
+code: "I",
+text: "Em thích phân tích số liệu, biểu đồ, báo cáo để hiểu sâu vấn đề.",
+},
+{
+id: 57,
+code: "A",
+text: "Em thích thể hiện bản thân qua phong cách, sản phẩm sáng tạo của mình.",
+},
+{
+id: 58,
+code: "S",
+text: "Em thấy mình dễ đồng cảm, thấu hiểu cảm xúc của người khác.",
+},
+{
+id: 59,
+code: "E",
+text: "Em thích đặt mục tiêu lớn và nỗ lực để đạt được, thích cảm giác chinh phục.",
+},
+{
+id: 60,
+code: "C",
+text: "Em thấy yên tâm khi công việc có quy trình rõ ràng, ít thay đổi, ít rủi ro.",
+},
 ];
 
 // ==============================
@@ -168,6 +405,7 @@ const questionsContainer = document.getElementById("questions-container");
 const progressBar = document.getElementById("progress-bar");
 const progressFill = document.getElementById("progress-fill");
 const progressText = document.getElementById("progress-text");
+const progressPercentEl = document.getElementById("progress-percent");
 
 const studentNameInput = document.getElementById("student-name");
 const studentIdInput = document.getElementById("student-id");
@@ -230,7 +468,7 @@ let radarChartInstance = null;
 // Utility functions
 // ==============================
 function sanitizeInput(str) {
-return str.trim().replace(/[<>]/g, "");
+return (str || "").trim().replace(/[<>]/g, "");
 }
 
 function validateEmail(email) {
@@ -282,7 +520,8 @@ if (saved === "light" || saved === "dark") {
 applyTheme(saved);
 return;
 }
-const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+const prefersDark =
+window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
 applyTheme(prefersDark ? "dark" : "light");
 }
 
@@ -313,23 +552,6 @@ return {};
 
 function saveDraft(draft) {
 localStorage.setItem(LS_DRAFT_KEY, JSON.stringify(draft));
-}
-
-// Draft autosave khi trả lời
-function initQuestionChangeListener() {
-questionsContainer.addEventListener("click", (e) => {
-const btn = e.target.closest(".answer-pill");
-if (!btn) return;
-const qId = Number(btn.dataset.qid);
-const value = btn.dataset.value === "yes";
-
-```
-    const draft = loadDraft();
-    draft[qId] = value;
-    saveDraft(draft);
-});
-```
-
 }
 
 // Github config
@@ -370,14 +592,14 @@ return null;
 // GitHub API helpers (Contents API)
 // ==============================
 async function githubGetFile(owner, repo, path, token) {
-const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(
-        repo
-    )}/contents/${encodeURIComponent(path)}`;
+const url = `https://api.github.com/repos/${encodeURIComponent(
+        owner
+    )}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(path)}`;
 const res = await fetch(url, {
 headers: {
 Accept: "application/vnd.github+json",
-Authorization: `token ${token}`
-}
+Authorization: `token ${token}`,
+},
 });
 if (!res.ok) {
 throw new Error(`GitHub GET failed: ${res.status}`);
@@ -386,12 +608,12 @@ return res.json();
 }
 
 async function githubPutFile(owner, repo, path, token, contentBase64, sha) {
-const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(
-        repo
-    )}/contents/${encodeURIComponent(path)}`;
+const url = `https://api.github.com/repos/${encodeURIComponent(
+        owner
+    )}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(path)}`;
 const body = {
 message: "Update RIASEC results",
-content: contentBase64
+content: contentBase64,
 };
 if (sha) body.sha = sha;
 
@@ -400,9 +622,9 @@ const res = await fetch(url, {
     method: "PUT",
     headers: {
         Accept: "application/vnd.github+json",
-        Authorization: `token ${token}`
+        Authorization: `token ${token}`,
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify(body),
 });
 
 if (!res.ok) {
@@ -445,7 +667,9 @@ let remoteResults = [];
 let prevSha = undefined;
 
 try {
-    const fileData = await githubFetchWithRetry(() => githubGetFile(owner, repo, path, token));
+    const fileData = await githubFetchWithRetry(() =>
+        githubGetFile(owner, repo, path, token)
+    );
     prevSha = fileData.sha;
 
     const decoded = atob(fileData.content.replace(/\n/g, ""));
@@ -513,10 +737,12 @@ if (brandLogoEl) brandLogoEl.src = BRAND_CONFIG.logo;
 }
 
 function buildQuestions() {
+if (!questionsContainer) return;
+
+```
 questionsContainer.innerHTML = "";
 const draft = loadDraft();
 
-```
 questions.forEach((q) => {
     const wrapper = document.createElement("div");
     wrapper.className = "question-item";
@@ -561,46 +787,26 @@ questions.forEach((q) => {
     questionsContainer.appendChild(wrapper);
 });
 
-questionsContainer.addEventListener("click", (e) => {
-    const pill = e.target.closest(".answer-pill");
-    if (!pill) return;
-    const qid = Number(pill.dataset.qid);
-    const value = pill.dataset.value;
-
-    const parent = pill.parentElement;
-    const yes = parent.querySelector('.answer-pill[data-value="yes"]');
-    const no = parent.querySelector('.answer-pill[data-value="no"]');
-
-    yes.classList.remove("selected-yes");
-    no.classList.remove("selected-no");
-
-    if (value === "yes") {
-        yes.classList.add("selected-yes");
-    } else {
-        no.classList.add("selected-no");
-    }
-
-    updateProgress();
-});
-
 updateProgress();
 ```
 
 }
 
 function updateProgress() {
+if (!questionsContainer || !progressText || !progressFill || !progressBar) return;
+
+```
 const answered = {};
 const pills = questionsContainer.querySelectorAll(".answer-pill");
 pills.forEach((pill) => {
-const qid = Number(pill.dataset.qid);
-const isYes = pill.classList.contains("selected-yes");
-const isNo = pill.classList.contains("selected-no");
-if (isYes || isNo) {
-answered[qid] = true;
-}
+    const qid = Number(pill.dataset.qid);
+    const isYes = pill.classList.contains("selected-yes");
+    const isNo = pill.classList.contains("selected-no");
+    if (isYes || isNo) {
+        answered[qid] = true;
+    }
 });
 
-```
 const count = Object.keys(answered).length;
 const total = questions.length;
 const percent = total ? Math.round((count / total) * 100) : 0;
@@ -608,8 +814,39 @@ const percent = total ? Math.round((count / total) * 100) : 0;
 progressText.textContent = `${count} / ${total} câu hỏi`;
 progressFill.style.width = `${percent}%`;
 progressBar.setAttribute("aria-valuenow", String(percent));
-const percentEl = document.getElementById("progress-percent");
-if (percentEl) percentEl.textContent = `${percent}%`;
+if (progressPercentEl) progressPercentEl.textContent = `${percent}%`;
+```
+
+}
+
+// Xử lý click vào câu hỏi (toggle Đúng/Sai + lưu draft)
+function handleQuestionClick(e) {
+const pill = e.target.closest(".answer-pill");
+if (!pill || !questionsContainer.contains(pill)) return;
+
+```
+const qid = Number(pill.dataset.qid);
+const value = pill.dataset.value;
+
+const parent = pill.parentElement;
+const yes = parent.querySelector('.answer-pill[data-value="yes"]');
+const no = parent.querySelector('.answer-pill[data-value="no"]');
+
+yes.classList.remove("selected-yes");
+no.classList.remove("selected-no");
+
+const draft = loadDraft();
+
+if (value === "yes") {
+    yes.classList.add("selected-yes");
+    draft[qid] = true;
+} else {
+    no.classList.add("selected-no");
+    draft[qid] = false;
+}
+
+saveDraft(draft);
+updateProgress();
 ```
 
 }
@@ -650,7 +887,8 @@ return "Cần xem thêm";
 
 function renderResultSuggestions(top3) {
 if (!top3 || !top3.length) {
-resultSuggestionsEl.innerHTML = "<p>Chưa có dữ liệu. Hãy làm bài trắc nghiệm trước.</p>";
+resultSuggestionsEl.innerHTML =
+"<p>Chưa có dữ liệu. Hãy làm bài trắc nghiệm trước.</p>";
 return;
 }
 
@@ -707,7 +945,7 @@ const items = [
     `Thuộc nhóm ${code} – ${meta ? meta.name : ""}`,
     "Tìm hiểu các trường đào tạo ngành liên quan",
     "Tìm hiểu nhu cầu việc làm trong 5–10 năm tới",
-    "Trao đổi thêm với giáo viên, phụ huynh về lựa chọn này"
+    "Trao đổi thêm với giáo viên, phụ huynh về lựa chọn này",
 ];
 
 items.forEach((txt) => {
@@ -733,8 +971,12 @@ async function renderCharts(scores) {
 await loadChartJsIfNeeded();
 
 ```
-const ctxBar = document.getElementById("bar-chart").getContext("2d");
-const ctxRadar = document.getElementById("radar-chart").getContext("2d");
+const barCanvas = document.getElementById("bar-chart");
+const radarCanvas = document.getElementById("radar-chart");
+if (!barCanvas || !radarCanvas) return;
+
+const ctxBar = barCanvas.getContext("2d");
+const ctxRadar = radarCanvas.getContext("2d");
 
 const labels = ["R", "I", "A", "S", "E", "C"];
 const data = labels.map((code) => scores[code] || 0);
@@ -753,9 +995,9 @@ barChartInstance = new Chart(ctxBar, {
         datasets: [
             {
                 label: "Điểm RIASEC",
-                data
-            }
-        ]
+                data,
+            },
+        ],
     },
     options: {
         responsive: true,
@@ -763,20 +1005,19 @@ barChartInstance = new Chart(ctxBar, {
             legend: { display: false },
             tooltip: {
                 callbacks: {
-                    label: (ctx) => `${ctx.label}: ${ctx.raw} điểm`
-                }
-            }
+                    label: (ctx) => `${ctx.label}: ${ctx.raw} điểm`,
+                },
+            },
         },
         scales: {
             y: {
                 beginAtZero: true,
-                precision: 0,
                 ticks: {
-                    stepSize: 1
-                }
-            }
-        }
-    }
+                    stepSize: 1,
+                },
+            },
+        },
+    },
 });
 
 radarChartInstance = new Chart(ctxRadar, {
@@ -786,24 +1027,24 @@ radarChartInstance = new Chart(ctxRadar, {
         datasets: [
             {
                 label: "Điểm RIASEC",
-                data
-            }
-        ]
+                data,
+            },
+        ],
     },
     options: {
         responsive: true,
         plugins: {
-            legend: { display: false }
+            legend: { display: false },
         },
         scales: {
             r: {
                 beginAtZero: true,
                 ticks: {
-                    stepSize: 1
-                }
-            }
-        }
-    }
+                    stepSize: 1,
+                },
+            },
+        },
+    },
 });
 ```
 
@@ -811,16 +1052,13 @@ radarChartInstance = new Chart(ctxRadar, {
 
 // Result UI
 async function renderResultUI(result) {
-if (!result || !result.scores) {
-resultTop3El.textContent = "—";
-resultConfidenceEl.textContent = "Chưa có dữ liệu";
-scoreREl.textContent = "0";
-scoreIEl.textContent = "0";
-scoreAEl.textContent = "0";
-scoreSEl.textContent = "0";
-scoreEEl.textContent = "0";
-scoreCEl.textContent = "0";
-resultSuggestionsEl.innerHTML = "<p>Chưa có dữ liệu. Hãy làm bài trắc nghiệm trước.</p>";
+if (
+!result ||
+!result.scores ||
+!resultTop3El ||
+!resultConfidenceEl ||
+!scoreREl
+) {
 return;
 }
 
@@ -870,13 +1108,19 @@ lines.push("");
 lines.push(`Top 3 nhóm nổi bật: ${top3.join(" – ")}`);
 lines.push(`Độ phân biệt: ${calculateConfidence(scores)}`);
 lines.push("");
-lines.push("Lưu ý: Đây chỉ là công cụ tham khảo. Em nên trao đổi thêm với gia đình và thầy cô.");
+lines.push(
+    "Lưu ý: Đây chỉ là công cụ tham khảo. Em nên trao đổi thêm với gia đình và thầy cô."
+);
 
-const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+const blob = new Blob([lines.join("\n")], {
+    type: "text/plain;charset=utf-8",
+});
 const url = URL.createObjectURL(blob);
 const a = document.createElement("a");
 a.href = url;
-a.download = `riasec_${student.class || "hoc_sinh"}_${student.name || "ket_qua"}.txt`;
+a.download = `riasec_${student.class || "hoc_sinh"}_${
+    student.name || "ket_qua"
+}.txt`;
 document.body.appendChild(a);
 a.click();
 document.body.removeChild(a);
@@ -887,12 +1131,13 @@ URL.revokeObjectURL(url);
 
 // Admin table & CSV
 function refreshAdminTable(filters = {}) {
+if (!adminResultsTable) return;
+
+```
 const results = loadLocalResults();
 adminResultsTable.innerHTML = "";
 
-```
 const { classFilter, dateFilter } = filters;
-
 let rendered = 0;
 
 results.forEach((r) => {
@@ -929,7 +1174,12 @@ updateAdminStats();
 }
 
 function updateAdminStats() {
-if (!statTotalTestsEl || !statTotalClassesEl || !statTotalSchoolsEl || !adminClassStatsTable) {
+if (
+!statTotalTestsEl ||
+!statTotalClassesEl ||
+!statTotalSchoolsEl ||
+!adminClassStatsTable
+) {
 return;
 }
 
@@ -985,7 +1235,7 @@ const cls = sanitizeInput(filterClassInput.value);
 const date = filterDateInput.value || "";
 refreshAdminTable({
 classFilter: cls || null,
-dateFilter: date || null
+dateFilter: date || null,
 });
 }
 
@@ -1011,7 +1261,7 @@ rows.push([
     "S",
     "E",
     "C",
-    "top3"
+    "top3",
 ]);
 
 results.forEach((r) => {
@@ -1028,7 +1278,7 @@ results.forEach((r) => {
         r.scores.S,
         r.scores.E,
         r.scores.C,
-        (r.top3 || []).join("")
+        (r.top3 || []).join(""),
     ]);
 });
 
@@ -1116,7 +1366,9 @@ if (panel) panel.classList.add("active");
 });
 }
 
+// Autosave (30s)
 function initAutosave() {
+if (!questionsContainer) return;
 setInterval(() => {
 const draft = {};
 const pills = questionsContainer.querySelectorAll(".answer-pill");
@@ -1150,10 +1402,10 @@ const result = {
         id: sanitizeInput(studentIdInput.value),
         class: sanitizeInput(studentClassInput.value),
         school: sanitizeInput(studentSchoolInput.value),
-        email: sanitizeInput(studentEmailInput.value)
+        email: sanitizeInput(studentEmailInput.value),
     },
     scores,
-    top3
+    top3,
 };
 
 const results = loadLocalResults();
@@ -1164,14 +1416,24 @@ saveDraft({});
 
 await renderResultUI(result);
 
+// Chuyển sang tab kết quả
 tabButtons.forEach((btn) => {
     if (btn.getAttribute("data-tab") === "tab-result") {
         btn.click();
     }
 });
 
+// Auto sync GitHub nếu đang đăng nhập admin & đã cấu hình
 const ghConfig = loadGithubConfig();
-if (isAdminLoggedIn && ghConfig && ghConfig.owner && ghConfig.repo && ghConfig.path && ghConfig.token && ghConfig.secret) {
+if (
+    isAdminLoggedIn &&
+    ghConfig &&
+    ghConfig.owner &&
+    ghConfig.repo &&
+    ghConfig.path &&
+    ghConfig.token &&
+    ghConfig.secret
+) {
     syncAllLocalToGithub().catch((err) => {
         console.warn("Không đồng bộ được GitHub (tự động, có thể bỏ qua):", err);
     });
@@ -1198,9 +1460,13 @@ initTheme();
 buildQuestions();
 initTabs();
 initAutosave();
-initQuestionChangeListener();
 
 ```
+// Listener chung cho tất cả câu hỏi
+if (questionsContainer) {
+    questionsContainer.addEventListener("click", handleQuestionClick);
+}
+
 const results = loadLocalResults();
 if (results.length) {
     renderResultUI(results[results.length - 1]);
@@ -1212,35 +1478,44 @@ if (themeToggle) {
     });
 }
 
-submitTestBtn.addEventListener("click", () => {
-    submitTestBtn.disabled = true;
-    handleSubmitTest()
-        .catch((err) => {
-            console.error(err);
-            alert("Có lỗi xảy ra khi xử lý kết quả. Vui lòng thử lại.");
-        })
-        .finally(() => {
-            submitTestBtn.disabled = false;
-        });
-});
-
-resetTestBtn.addEventListener("click", handleResetTest);
-backToTestBtn.addEventListener("click", () => {
-    tabButtons.forEach((btn) => {
-        if (btn.getAttribute("data-tab") === "tab-test") {
-            btn.click();
-        }
+if (submitTestBtn) {
+    submitTestBtn.addEventListener("click", () => {
+        submitTestBtn.disabled = true;
+        handleSubmitTest()
+            .catch((err) => {
+                console.error(err);
+                alert("Có lỗi xảy ra khi xử lý kết quả. Vui lòng thử lại.");
+            })
+            .finally(() => {
+                submitTestBtn.disabled = false;
+            });
     });
-});
+}
 
-exportTxtBtn.addEventListener("click", () => {
-    const results = loadLocalResults();
-    if (!results.length) {
-        alert("Chưa có kết quả nào để xuất.");
-        return;
-    }
-    exportResultTxt(results[results.length - 1]);
-});
+if (resetTestBtn) {
+    resetTestBtn.addEventListener("click", handleResetTest);
+}
+
+if (backToTestBtn) {
+    backToTestBtn.addEventListener("click", () => {
+        tabButtons.forEach((btn) => {
+            if (btn.getAttribute("data-tab") === "tab-test") {
+                btn.click();
+            }
+        });
+    });
+}
+
+if (exportTxtBtn) {
+    exportTxtBtn.addEventListener("click", () => {
+        const results = loadLocalResults();
+        if (!results.length) {
+            alert("Chưa có kết quả nào để xuất.");
+            return;
+        }
+        exportResultTxt(results[results.length - 1]);
+    });
+}
 
 if (adminLoginBtn) {
     adminLoginBtn.addEventListener("click", handleAdminLogin);
@@ -1254,18 +1529,22 @@ if (exportCsvBtn) {
 if (syncGithubBtn) {
     syncGithubBtn.addEventListener("click", () => {
         syncGithubBtn.disabled = true;
+        const oldText = syncGithubBtn.textContent;
         syncGithubBtn.textContent = "Đang đồng bộ...";
         syncAllLocalToGithub()
             .catch((err) => {
                 console.error(err);
-                alert("Không đồng bộ được lên GitHub. Vui lòng kiểm tra cấu hình & Token.");
+                alert(
+                    "Không đồng bộ được lên GitHub. Vui lòng kiểm tra cấu hình & Token."
+                );
             })
             .finally(() => {
                 syncGithubBtn.disabled = false;
-                syncGithubBtn.textContent = "☁️ Đồng bộ toàn bộ lên GitHub";
+                syncGithubBtn.textContent = oldText;
             });
     });
-
+}
+if (saveGhConfigBtn) {
     saveGhConfigBtn.addEventListener("click", handleSaveGithubConfig);
 }
 

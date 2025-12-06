@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title>CBB &amp; Family – Trắc nghiệm Holland RIASEC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Bài trắc nghiệm Holland RIASEC giúp học sinh khám phá tính cách nghề nghiệp và gợi ý ngành nghề phù hợp. CBB &amp; Family đồng hành cùng con định hướng tương lai." />
+    <meta property="og:title" content="CBB &amp; Family – Trắc nghiệm Holland RIASEC" />
+    <meta property="og:description" content="Công cụ trắc nghiệm RIASEC trực tuyến, lưu kết quả và hỗ trợ giáo viên quản lý học sinh." />
+    <meta property="og:type" content="website" />
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- CryptoJS dùng để mã hóa dữ liệu trước khi lưu GitHub -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+<noscript><div class="no-js-warning">Trình duyệt của bạn đang tắt JavaScript. Vui lòng bật JavaScript để sử dụng bài trắc nghiệm RIASEC.</div></noscript>
+<div class="app-shell">
+    <header class="app-header">
+        <div class="brand-left">
+            <img src="logo-cbb.png" alt="Logo CBB &amp; Family" class="brand-logo" id="brand-logo" />
+            <div>
+                <div class="brand-title" id="brand-name">CBB &amp; Family</div>
+                <div class="brand-sub" id="brand-tagline">Cùng con định hướng tương lai</div>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div class="beta-pill">
+                <span class="dot"></span>
+                <span>Beta – Dùng thử nội bộ</span>
+            </div>
+
+            <div class="theme-toggle">
+                <span>🌙</span>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle" />
+                    <span class="slider"></span>
+                </label>
+                <span>☀️</span>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav-tabs" aria-label="Main navigation" role="tablist">
+        <button class="nav-tab active" id="tab-test-tab" role="tab" data-tab="tab-test" aria-controls="tab-test" accesskey="1">Bài trắc nghiệm</button>
+        <button class="nav-tab" id="tab-guide-tab" role="tab" data-tab="tab-guide" aria-controls="tab-guide" accesskey="2">Giới thiệu RIASEC</button>
+        <button class="nav-tab" id="tab-result-tab" role="tab" data-tab="tab-result" aria-controls="tab-result" accesskey="3">Kết quả &amp; Gợi ý</button>
+        <button class="nav-tab" id="tab-admin-tab" role="tab" data-tab="tab-admin" aria-controls="tab-admin" accesskey="4">Admin</button>
+    </nav>
+
+    <main class="app-main">
+        <!-- TAB: TEST -->
+        <section id="tab-test" class="tab-panel active" aria-label="Bài trắc nghiệm" role="tabpanel" aria-labelledby="tab-test-tab">
+            <div class="card">
+                <h2>Thông tin học sinh</h2>
+                <p class="card-sub">
+                    Dùng để lưu lại kết quả và giáo viên dễ quản lý danh sách.
+                </p>
+
+                <div class="student-grid">
+                    <div class="field">
+                        <label for="student-name">Họ và tên <span>*</span></label>
+                        <input type="text" id="student-name" placeholder="Nguyễn Văn A" />
+                    </div>
+                    <div class="field">
+                        <label for="student-id">Mã học sinh</label>
+                        <input type="text" id="student-id" placeholder="Mã nội bộ của trường (nếu có)" />
+                    </div>
+                    <div class="field">
+                        <label for="student-class">Lớp học <span>*</span></label>
+                        <input type="text" id="student-class" placeholder="10A1, 11A3..." />
+                    </div>
+                    <div class="field">
+                        <label for="student-email">Email</label>
+                        <input type="email" id="student-email" placeholder="Để gửi lại kết quả (tuỳ chọn)" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Bài trắc nghiệm Holland RIASEC</h2>
+                <p class="card-sub">
+                    Em hãy đọc từng câu và chọn <strong>ĐÚNG</strong> nếu thấy giống mình, <strong>SAI</strong> nếu không giống.
+                    Không có đúng sai tuyệt đối, chỉ cần trả lời thật với bản thân.
+                </p>
+
+                <div class="progress-wrapper" aria-label="Tiến độ bài làm">
+                    <div class="progress-label">
+                        <span id="progress-text">0 / 60 câu hỏi</span>
+                        <span class="progress-percent" id="progress-percent">0%</span>
+                    </div>
+                    <div class="progress-bar" id="progress-bar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" role="progressbar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+
+                <div class="questions-container" id="questions-container">
+                    <!-- câu hỏi sẽ được JS render -->
+                </div>
+
+                <div class="actions">
+                    <button class="btn primary" id="submit-test-btn" accesskey="s">
+                        Xem kết quả
+                    </button>
+                    <button class="btn ghost" id="reset-test-btn">
+                        Làm lại từ đầu
+                    </button>
+                </div>
+
+                <p class="hint">
+                    ⌨️ Mẹo: Em có thể dùng phím tắt <strong>Alt + 1</strong>, <strong>Alt + 2</strong>, <strong>Alt + 3</strong>, <strong>Alt + 4</strong> để chuyển tab nhanh.
+                </p>
+            </div>
+        </section>
+
+        <!-- TAB: GUIDE -->
+        <section id="tab-guide" class="tab-panel" aria-label="Giới thiệu RIASEC" role="tabpanel" aria-labelledby="tab-guide-tab">
+            <div class="card">
+                <h2>RIASEC là gì?</h2>
+                <p>
+                    Mô hình Holland RIASEC chia sở thích nghề nghiệp thành 6 nhóm chính:
+                    <strong>R – Realistic (Thực tế)</strong>,
+                    <strong>I – Investigative (Nghiên cứu)</strong>,
+                    <strong>A – Artistic (Nghệ thuật)</strong>,
+                    <strong>S – Social (Xã hội)</strong>,
+                    <strong>E – Enterprising (Doanh nghiệp)</strong>,
+                    <strong>C – Conventional (Quy ước)</strong>.
+                </p>
+
+                <p>
+                    Kết quả sẽ là <strong>3 chữ cái nổi bật nhất</strong> (ví dụ: <strong>RIA</strong>, <strong>SEC</strong>...), giúp gợi ý nhóm nghề phù hợp với tính cách và
+                    sở thích của em.
+                </p>
+
+                <div class="riasec-grid">
+                    <div class="riasec-box">
+                        <div class="riasec-code">R – Realistic</div>
+                        <div class="riasec-desc">
+                            Thực tế, thích làm việc với máy móc, công cụ, vận động tay chân.
+                        </div>
+                    </div>
+                    <div class="riasec-box">
+                        <div class="riasec-code">I – Investigative</div>
+                        <div class="riasec-desc">
+                            Thích phân tích, nghiên cứu, đặt câu hỏi, giải quyết vấn đề.
+                        </div>
+                    </div>
+                    <div class="riasec-box">
+                        <div class="riasec-code">A – Artistic</div>
+                        <div class="riasec-desc">
+                            Sáng tạo, yêu nghệ thuật, thích tự do trong suy nghĩ và thể hiện.
+                        </div>
+                    </div>
+                    <div class="riasec-box">
+                        <div class="riasec-code">S – Social</div>
+                        <div class="riasec-desc">
+                            Thích giúp đỡ, lắng nghe, làm việc với con người.
+                        </div>
+                    </div>
+                    <div class="riasec-box">
+                        <div class="riasec-code">E – Enterprising</div>
+                        <div class="riasec-desc">
+                            Thích lãnh đạo, kinh doanh, thuyết phục và ảnh hưởng người khác.
+                        </div>
+                    </div>
+                    <div class="riasec-box">
+                        <div class="riasec-code">C – Conventional</div>
+                        <div class="riasec-desc">
+                            Ngăn nắp, cẩn thận, thích quy trình và dữ liệu rõ ràng.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Cách giáo viên / phụ huynh sử dụng</h2>
+                <ul class="guide-list">
+                    <li>Cho học sinh làm bài trong 10–15 phút, nhắc các em trả lời thật với bản thân.</li>
+                    <li>Sau khi có kết quả, hỏi thêm cảm nhận: “Em thấy đúng với mình không? Em thích nhóm nào nhất?”</li>
+                    <li>Kết hợp thêm điểm mạnh – điểm yếu trong học tập, thái độ, kỹ năng mềm để tư vấn hướng đi.</li>
+                    <li>Có thể xuất file TXT và lưu tập trung để theo dõi toàn bộ lớp / khối (xem tab <strong>Admin</strong>).</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- TAB: RESULT -->
+        <section id="tab-result" class="tab-panel" aria-label="Kết quả &amp; Gợi ý" role="tabpanel" aria-labelledby="tab-result-tab">
+            <div class="card">
+                <h2>Kết quả trắc nghiệm</h2>
+                <p class="card-sub">
+                    Đây là kết quả gần nhất mà em / thầy cô đã làm trên máy này.
+                </p>
+
+                <div class="result-layout">
+                    <div class="result-main">
+                        <div class="result-summary">
+                            <div>
+                                <div class="result-label">Mã RIASEC nổi bật</div>
+                                <div class="result-code" id="result-top3">—</div>
+                            </div>
+                            <div>
+                                <div class="result-label">Độ phân biệt giữa các nhóm</div>
+                                <div class="result-confidence" id="result-confidence">—</div>
+                            </div>
+                        </div>
+
+                        <div class="score-grid">
+                            <div class="score-item">
+                                <div class="score-label">R – Thực tế</div>
+                                <div class="score-value" id="score-R">0</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-label">I – Nghiên cứu</div>
+                                <div class="score-value" id="score-I">0</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-label">A – Nghệ thuật</div>
+                                <div class="score-value" id="score-A">0</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-label">S – Xã hội</div>
+                                <div class="score-value" id="score-S">0</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-label">E – Doanh nghiệp</div>
+                                <div class="score-value" id="score-E">0</div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-label">C – Quy ước</div>
+                                <div class="score-value" id="score-C">0</div>
+                            </div>
+                        </div>
+
+                        <div class="chart-grid">
+                            <div class="chart-card">
+                                <h3>Biểu đồ cột</h3>
+                                <canvas id="bar-chart" aria-label="Biểu đồ cột điểm RIASEC"></canvas>
+                            </div>
+                            <div class="chart-card">
+                                <h3>Biểu đồ radar</h3>
+                                <canvas id="radar-chart" aria-label="Biểu đồ radar điểm RIASEC"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <aside class="result-aside">
+                        <h3>Gợi ý theo nhóm</h3>
+                        <div id="result-suggestions">
+                            <p>Chưa có dữ liệu. Hãy làm bài trắc nghiệm ở tab <strong>Bài trắc nghiệm</strong> trước.</p>
+                        </div>
+
+                        <div class="result-actions">
+                            <button class="btn secondary" id="export-txt-btn">
+                                📄 Xuất file TXT kết quả
+                            </button>
+                            <button class="btn ghost" id="back-to-test-btn">
+                                🔄 Quay lại làm bài
+                            </button>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: ADMIN -->
+        <section id="tab-admin" class="tab-panel" aria-label="Admin" role="tabpanel" aria-labelledby="tab-admin-tab">
+            <div class="card">
+                <h2>Đăng nhập admin</h2>
+                <p class="card-sub">
+                    Dùng cho giáo viên / người phụ trách để xem danh sách kết quả, lọc theo lớp, xuất CSV và đồng bộ lên GitHub (tuỳ chọn).
+                </p>
+
+                <div id="admin-login-section">
+                    <div class="field inline">
+                        <label for="admin-password">Mật khẩu admin</label>
+                        <input type="password" id="admin-password" placeholder="Nhập mật khẩu do hệ thống cung cấp" />
+                        <button class="btn primary" id="admin-login-btn">Đăng nhập</button>
+                    </div>
+                </div>
+
+                <div id="admin-content" class="hidden">
+                    <div class="admin-grid">
+                        <div>
+                            <h3>Bộ lọc</h3>
+                            <div class="filter-grid">
+                                <div class="field">
+                                    <label for="filter-class">Lọc theo lớp</label>
+                                    <input type="text" id="filter-class" placeholder="10A1, 11A3..." />
+                                </div>
+                                <div class="field">
+                                    <label for="filter-date">Lọc theo ngày</label>
+                                    <input type="date" id="filter-date" />
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <button class="btn secondary" id="apply-filter-btn">Áp dụng lọc</button>
+                                <button class="btn ghost" id="export-csv-btn">📊 Xuất CSV</button>
+                            </div>
+
+                            <p class="hint">
+                                CSV có thể mở bằng Excel / Google Sheets để phân tích sâu hơn.
+                            </p>
+                        </div>
+
+                        <div>
+                            <h3>Đồng bộ GitHub (tuỳ chọn)</h3>
+                            <p class="hint">
+                                Dùng GitHub như một “máy chủ đơn giản” để lưu toàn bộ kết quả đã mã hóa.
+                                Cần tạo <strong>Personal Access Token</strong> và repository riêng.
+                            </p>
+
+                            <div class="github-grid">
+                                <div class="field">
+                                    <label for="gh-owner">Owner / tổ chức</label>
+                                    <input type="text" id="gh-owner" placeholder="vd: username hoặc org" />
+                                </div>
+                                <div class="field">
+                                    <label for="gh-repo">Repository</label>
+                                    <input type="text" id="gh-repo" placeholder="vd: riasec-results" />
+                                </div>
+                                <div class="field">
+                                    <label for="gh-path">Đường dẫn file JSON</label>
+                                    <input type="text" id="gh-path" placeholder="vd: data/results.json" />
+                                </div>
+                                <div class="field">
+                                    <label for="gh-token">GitHub Token</label>
+                                    <input type="password" id="gh-token" placeholder="Personal Access Token" />
+                                </div>
+                                <div class="field">
+                                    <label for="gh-secret">Khóa bí mật để mã hóa</label>
+                                    <input type="password" id="gh-secret" placeholder="Tự đặt một chuỗi khó đoán" />
+                                </div>
+                            </div>
+
+                            <div class="actions">
+                                <button class="btn secondary" id="save-gh-config-btn">💾 Lưu cấu hình</button>
+                                <button class="btn primary" id="sync-github-btn">☁️ Đồng bộ toàn bộ lên GitHub</button>
+                            </div>
+
+                            <p class="hint">
+                                Toàn bộ dữ liệu gửi lên GitHub sẽ được <strong>mã hóa AES</strong> trước,
+                                GitHub chỉ lưu chuỗi đã mã hóa.
+                            </p>
+                        </div>
+                    </div>
+
+                    <hr class="divider" />
+
+                    <h3>Danh sách kết quả đã lưu</h3>
+                    <div class="table-wrapper">
+                        <table class="results-table" id="admin-results-table">
+                            <thead>
+                                <tr>
+                                    <th>Thời gian</th>
+                                    <th>Họ tên</th>
+                                    <th>Mã HS</th>
+                                    <th>Lớp</th>
+                                    <th>Email</th>
+                                    <th>RIASEC</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- JS render -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Script chính -->
+<script src="script.js"></script>
+</body>
+</html>

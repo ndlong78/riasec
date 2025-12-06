@@ -1,8 +1,7 @@
 // ==============================
-// Brand & Admin config
+// Brand & Admin config (từ config.js)
 // ==============================
 
-// Lấy cấu hình từ config.js (nếu có), nếu không dùng giá trị mặc định
 const BRAND_CONFIG = (window.RIASEC_CONFIG && window.RIASEC_CONFIG.brand) || {
 name: "CBB & Family",
 tagline: "Cùng con định hướng tương lai",
@@ -12,11 +11,13 @@ logo: "logo-cbb.png",
 const ADMIN_PASSWORD =
 (window.RIASEC_CONFIG && window.RIASEC_CONFIG.adminPassword) || "cbbadmin123";
 
-// Keys localStorage
+// ==============================
+// LocalStorage keys
+// ==============================
 const LS_RESULTS_KEY = "riasecResults";
 const LS_DRAFT_KEY = "riasecDraft";
-const LS_GH_CONFIG_KEY = "riasecGithubConfig";
 const LS_THEME_KEY = "riasecTheme";
+
 let isAdminLoggedIn = false;
 
 // ==============================
@@ -396,28 +397,33 @@ text: "Em thấy yên tâm khi công việc có quy trình rõ ràng, ít thay �
 // ==============================
 // DOM references
 // ==============================
-const themeToggle = document.getElementById("theme-toggle");
 
+// Theme & tabs
+const themeToggle = document.getElementById("theme-toggle");
 const tabButtons = document.querySelectorAll(".nav-tab");
 const tabPanels = document.querySelectorAll(".tab-panel");
 
+// Questions & progress
 const questionsContainer = document.getElementById("questions-container");
 const progressBar = document.getElementById("progress-bar");
 const progressFill = document.getElementById("progress-fill");
 const progressText = document.getElementById("progress-text");
 const progressPercentEl = document.getElementById("progress-percent");
 
+// Student info
 const studentNameInput = document.getElementById("student-name");
 const studentIdInput = document.getElementById("student-id");
 const studentClassInput = document.getElementById("student-class");
 const studentSchoolInput = document.getElementById("student-school");
 const studentEmailInput = document.getElementById("student-email");
 
+// Buttons
 const submitTestBtn = document.getElementById("submit-test-btn");
 const resetTestBtn = document.getElementById("reset-test-btn");
 const backToTestBtn = document.getElementById("back-to-test-btn");
 const exportTxtBtn = document.getElementById("export-txt-btn");
 
+// Result UI
 const resultTop3El = document.getElementById("result-top3");
 const resultConfidenceEl = document.getElementById("result-confidence");
 const scoreREl = document.getElementById("score-R");
@@ -439,33 +445,24 @@ const applyFilterBtn = document.getElementById("apply-filter-btn");
 const exportCsvBtn = document.getElementById("export-csv-btn");
 const adminResultsTable = document.getElementById("admin-results-table");
 
-// Admin stats
+// Admin dashboard stats
 const statTotalTestsEl = document.getElementById("stat-total-tests");
 const statTotalClassesEl = document.getElementById("stat-total-classes");
 const statTotalSchoolsEl = document.getElementById("stat-total-schools");
 const adminClassStatsTable = document.getElementById("admin-class-stats-table");
 
-// GitHub config
-const ghOwnerInput = document.getElementById("gh-owner");
-const ghRepoInput = document.getElementById("gh-repo");
-const ghPathInput = document.getElementById("gh-path");
-const ghTokenInput = document.getElementById("gh-token");
-const ghSecretInput = document.getElementById("gh-secret");
-const saveGhConfigBtn = document.getElementById("save-gh-config-btn");
-const syncGithubBtn = document.getElementById("sync-github-btn");
-
-// Modal DOM
+// Modal nghề
 const careerModalBackdrop = document.getElementById("career-modal-backdrop");
 const careerModalTitle = document.getElementById("career-modal-title");
 const careerModalBody = document.getElementById("career-modal-body");
 const careerModalCloseBtn = document.getElementById("career-modal-close");
 
-// Chart references
+// Chart instances
 let barChartInstance = null;
 let radarChartInstance = null;
 
 // ==============================
-// Utility functions
+// Utils
 // ==============================
 function sanitizeInput(str) {
 return (str || "").trim().replace(/[<>]/g, "");
@@ -476,56 +473,7 @@ if (!email) return true;
 return /^[^\s@]+@[^\s@]+.[^\s@]+$/.test(email);
 }
 
-function ensureStudentInfo() {
-const name = sanitizeInput(studentNameInput.value);
-const cls = sanitizeInput(studentClassInput.value);
-const email = studentEmailInput.value.trim();
-
-```
-if (!name) {
-    alert("Vui lòng nhập Họ và tên.");
-    studentNameInput.focus();
-    return false;
-}
-if (!cls) {
-    alert("Vui lòng nhập Lớp.");
-    studentClassInput.focus();
-    return false;
-}
-if (email && !validateEmail(email)) {
-    alert("Email không hợp lệ.");
-    studentEmailInput.focus();
-    return false;
-}
-return true;
-```
-
-}
-
-// Theme
-function applyTheme(theme) {
-if (theme === "light") {
-document.documentElement.setAttribute("data-theme", "light");
-if (themeToggle) themeToggle.checked = false;
-} else {
-document.documentElement.removeAttribute("data-theme");
-if (themeToggle) themeToggle.checked = true;
-}
-localStorage.setItem(LS_THEME_KEY, theme);
-}
-
-function initTheme() {
-const saved = localStorage.getItem(LS_THEME_KEY);
-if (saved === "light" || saved === "dark") {
-applyTheme(saved);
-return;
-}
-const prefersDark =
-window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-applyTheme(prefersDark ? "dark" : "light");
-}
-
-// LocalStorage helpers
+// LocalStorage
 function loadLocalResults() {
 try {
 const raw = localStorage.getItem(LS_RESULTS_KEY);
@@ -554,174 +502,31 @@ function saveDraft(draft) {
 localStorage.setItem(LS_DRAFT_KEY, JSON.stringify(draft));
 }
 
-// Github config
-function loadGithubConfig() {
-try {
-const raw = localStorage.getItem(LS_GH_CONFIG_KEY);
-if (!raw) return null;
-return JSON.parse(raw);
-} catch {
-return null;
+// Theme
+function applyTheme(theme) {
+if (theme === "light") {
+document.documentElement.setAttribute("data-theme", "light");
+if (themeToggle) themeToggle.checked = false;
+} else {
+document.documentElement.removeAttribute("data-theme");
+if (themeToggle) themeToggle.checked = true;
 }
-}
-
-function saveGithubConfig(cfg) {
-localStorage.setItem(LS_GH_CONFIG_KEY, JSON.stringify(cfg));
+localStorage.setItem(LS_THEME_KEY, theme);
 }
 
-// AES encrypt/decrypt
-function encryptText(plainText, secret) {
-try {
-const cipher = CryptoJS.AES.encrypt(plainText, secret);
-return cipher.toString();
-} catch {
-return null;
-}
-}
-
-function decryptText(cipherText, secret) {
-try {
-const bytes = CryptoJS.AES.decrypt(cipherText, secret);
-return bytes.toString(CryptoJS.enc.Utf8);
-} catch {
-return null;
+function initTheme() {
+const saved = localStorage.getItem(LS_THEME_KEY);
+if (saved === "light" || saved === "dark") {
+applyTheme(saved);
+} else {
+const prefersDark =
+window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+applyTheme(prefersDark ? "dark" : "light");
 }
 }
 
 // ==============================
-// GitHub API helpers (Contents API)
-// ==============================
-async function githubGetFile(owner, repo, path, token) {
-const url =
-"[https://api.github.com/repos/](https://api.github.com/repos/)" +
-encodeURIComponent(owner) +
-"/" +
-encodeURIComponent(repo) +
-"/contents/" +
-encodeURIComponent(path);
-
-```
-const res = await fetch(url, {
-    headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: "token " + token,
-    },
-});
-if (!res.ok) {
-    throw new Error("GitHub GET failed: " + res.status);
-}
-return res.json();
-```
-
-}
-
-async function githubPutFile(owner, repo, path, token, contentBase64, sha) {
-const url =
-"[https://api.github.com/repos/](https://api.github.com/repos/)" +
-encodeURIComponent(owner) +
-"/" +
-encodeURIComponent(repo) +
-"/contents/" +
-encodeURIComponent(path);
-
-```
-const body = {
-    message: "Update RIASEC results",
-    content: contentBase64,
-};
-if (sha) body.sha = sha;
-
-const res = await fetch(url, {
-    method: "PUT",
-    headers: {
-        Accept: "application/vnd.github+json",
-        Authorization: "token " + token,
-    },
-    body: JSON.stringify(body),
-});
-
-if (!res.ok) {
-    throw new Error("GitHub PUT failed: " + res.status);
-}
-return res.json();
-```
-
-}
-
-async function githubFetchWithRetry(fn, maxRetries = 3) {
-for (let i = 0; i < maxRetries; i++) {
-try {
-return await fn();
-} catch (e) {
-if (i === maxRetries - 1) throw e;
-await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
-}
-}
-}
-
-// Merge & sync results lên GitHub
-async function syncAllLocalToGithub() {
-const cfg = loadGithubConfig();
-if (!cfg || !cfg.owner || !cfg.repo || !cfg.path || !cfg.token || !cfg.secret) {
-alert("Chưa cấu hình đủ thông tin GitHub & khóa mã hóa (tab Admin).");
-return;
-}
-
-```
-const localResults = loadLocalResults();
-if (!localResults.length) {
-    alert("Chưa có kết quả nào trong máy để đồng bộ.");
-    return;
-}
-
-const owner = cfg.owner;
-const repo = cfg.repo;
-const path = cfg.path;
-const token = cfg.token;
-const secret = cfg.secret;
-
-let remoteResults = [];
-let prevSha = undefined;
-
-try {
-    const fileData = await githubFetchWithRetry(function () {
-        return githubGetFile(owner, repo, path, token);
-    });
-    prevSha = fileData.sha;
-
-    const decoded = atob(fileData.content.replace(/\n/g, ""));
-    const decrypted = decryptText(decoded, secret);
-    if (decrypted) {
-        const parsed = JSON.parse(decrypted);
-        if (Array.isArray(parsed.results)) {
-            remoteResults = parsed.results;
-        }
-    }
-} catch (err) {
-    console.warn("Không đọc được dữ liệu từ GitHub, sẽ tạo mới:", err);
-}
-
-const existingIds = new Set(remoteResults.map(function (r) { return r.id; }));
-localResults.forEach(function (r) {
-    if (!existingIds.has(r.id)) {
-        remoteResults.push(r);
-        existingIds.add(r.id);
-    }
-});
-
-const payload = { results: remoteResults };
-const plainText = JSON.stringify(payload, null, 2);
-const cipher = encryptText(plainText, secret);
-const base64 = btoa(cipher);
-
-await githubPutFile(owner, repo, path, token, base64, prevSha);
-alert("Đã đồng bộ dữ liệu lên GitHub thành công.");
-```
-
-}
-
-// ==============================
-// Chart.js lazy-load
+// Chart.js lazy load
 // ==============================
 function loadChartJsIfNeeded() {
 return new Promise(function (resolve, reject) {
@@ -731,7 +536,9 @@ return;
 }
 const script = document.createElement("script");
 script.src = "[https://cdn.jsdelivr.net/npm/chart.js](https://cdn.jsdelivr.net/npm/chart.js)";
-script.onload = function () { resolve(); };
+script.onload = function () {
+resolve();
+};
 script.onerror = function () {
 reject(new Error("Không tải được Chart.js"));
 };
@@ -742,6 +549,7 @@ document.body.appendChild(script);
 // ==============================
 // UI render & logic
 // ==============================
+
 function initBrand() {
 const brandNameEl = document.getElementById("brand-name");
 const brandTaglineEl = document.getElementById("brand-tagline");
@@ -790,11 +598,8 @@ questions.forEach(function (q) {
     noBtn.innerHTML = "<span>❌</span> Sai";
 
     const saved = draft[q.id];
-    if (saved === true) {
-        yesBtn.classList.add("selected-yes");
-    } else if (saved === false) {
-        noBtn.classList.add("selected-no");
-    }
+    if (saved === true) yesBtn.classList.add("selected-yes");
+    if (saved === false) noBtn.classList.add("selected-no");
 
     actions.appendChild(yesBtn);
     actions.appendChild(noBtn);
@@ -812,7 +617,7 @@ updateProgress();
 }
 
 function updateProgress() {
-if (!questionsContainer || !progressText || !progressFill || !progressBar) return;
+if (!questionsContainer || !progressBar || !progressFill || !progressText) return;
 
 ```
 const answered = {};
@@ -821,9 +626,7 @@ pills.forEach(function (pill) {
     const qid = Number(pill.dataset.qid);
     const isYes = pill.classList.contains("selected-yes");
     const isNo = pill.classList.contains("selected-no");
-    if (isYes || isNo) {
-        answered[qid] = true;
-    }
+    if (isYes || isNo) answered[qid] = true;
 });
 
 const count = Object.keys(answered).length;
@@ -838,7 +641,7 @@ if (progressPercentEl) progressPercentEl.textContent = percent + "%";
 
 }
 
-// Xử lý click vào câu hỏi (toggle Đúng/Sai + lưu draft)
+// handle click Đúng/Sai
 function handleQuestionClick(e) {
 const pill = e.target.closest(".answer-pill");
 if (!pill || !questionsContainer.contains(pill)) return;
@@ -875,15 +678,14 @@ const scores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
 const draft = loadDraft();
 
 ```
-Object.entries(draft).forEach(function (entry) {
-    const qidStr = entry[0];
-    const value = entry[1];
+Object.keys(draft).forEach(function (qidStr) {
+    const value = draft[qidStr];
     const qid = Number(qidStr);
-    const q = questions.find(function (qq) { return qq.id === qid; });
+    const q = questions.find(function (qq) {
+        return qq.id === qid;
+    });
     if (!q) return;
-    if (value === true) {
-        scores[q.code] = (scores[q.code] || 0) + 1;
-    }
+    if (value === true) scores[q.code] = (scores[q.code] || 0) + 1;
 });
 
 return scores;
@@ -893,8 +695,12 @@ return scores;
 
 function getTop3Codes(scores) {
 const entries = Object.entries(scores);
-entries.sort(function (a, b) { return b[1] - a[1]; });
-return entries.slice(0, 3).map(function (e) { return e[0]; });
+entries.sort(function (a, b) {
+return b[1] - a[1];
+});
+return entries.slice(0, 3).map(function (e) {
+return e[0];
+});
 }
 
 function calculateConfidence(scores) {
@@ -909,18 +715,21 @@ return "Cần xem thêm";
 }
 
 function renderResultSuggestions(top3) {
-if (!top3 || !top3.length) {
-resultSuggestionsEl.innerHTML =
-"<p>Chưa có dữ liệu. Hãy làm bài trắc nghiệm trước.</p>";
-return;
-}
+if (!resultSuggestionsEl) return;
 
 ```
-const list = document.createElement("div");
+if (!top3 || !top3.length) {
+    resultSuggestionsEl.innerHTML =
+        "<p>Chưa có dữ liệu. Hãy làm bài trắc nghiệm trước.</p>";
+    return;
+}
 
-[top3[0], top3[1], top3[2]].forEach(function (code) {
+const container = document.createElement("div");
+
+top3.forEach(function (code) {
     const meta = riasecMeta[code];
     if (!meta) return;
+
     const block = document.createElement("div");
     block.className = "suggest-block";
 
@@ -935,8 +744,8 @@ const list = document.createElement("div");
     const careersWrap = document.createElement("div");
     meta.careers.forEach(function (career) {
         const tag = document.createElement("button");
-        tag.className = "career-tag";
         tag.type = "button";
+        tag.className = "career-tag";
         tag.textContent = career;
         tag.addEventListener("click", function () {
             openCareerModal(code, career);
@@ -945,11 +754,11 @@ const list = document.createElement("div");
     });
 
     block.appendChild(careersWrap);
-    list.appendChild(block);
+    container.appendChild(block);
 });
 
 resultSuggestionsEl.innerHTML = "";
-resultSuggestionsEl.appendChild(list);
+resultSuggestionsEl.appendChild(container);
 ```
 
 }
@@ -960,6 +769,7 @@ const meta = riasecMeta[code];
 
 ```
 careerModalTitle.textContent = career;
+
 const ul = document.createElement("ul");
 ul.className = "checklist";
 
@@ -997,20 +807,16 @@ const barCanvas = document.getElementById("bar-chart");
 const radarCanvas = document.getElementById("radar-chart");
 if (!barCanvas || !radarCanvas) return;
 
-const ctxBar = barCanvas.getContext("2d");
-const ctxRadar = radarCanvas.getContext("2d");
-
 const labels = ["R", "I", "A", "S", "E", "C"];
 const data = labels.map(function (code) {
     return scores[code] || 0;
 });
 
-if (barChartInstance) {
-    barChartInstance.destroy();
-}
-if (radarChartInstance) {
-    radarChartInstance.destroy();
-}
+const ctxBar = barCanvas.getContext("2d");
+const ctxRadar = radarCanvas.getContext("2d");
+
+if (barChartInstance) barChartInstance.destroy();
+if (radarChartInstance) radarChartInstance.destroy();
 
 barChartInstance = new Chart(ctxBar, {
     type: "bar",
@@ -1027,13 +833,6 @@ barChartInstance = new Chart(ctxBar, {
         responsive: true,
         plugins: {
             legend: { display: false },
-            tooltip: {
-                callbacks: {
-                    label: function (ctx) {
-                        return ctx.label + ": " + ctx.raw + " điểm";
-                    },
-                },
-            },
         },
         scales: {
             y: {
@@ -1078,22 +877,20 @@ radarChartInstance = new Chart(ctxRadar, {
 
 // Result UI
 async function renderResultUI(result) {
-if (!result || !result.scores || !resultTop3El || !resultConfidenceEl || !scoreREl) {
-return;
-}
+if (!result || !result.scores) return;
 
 ```
 const scores = result.scores;
 const top3 = result.top3 || getTop3Codes(scores);
 
-resultTop3El.textContent = top3.join("");
-resultConfidenceEl.textContent = calculateConfidence(scores);
-scoreREl.textContent = scores.R;
-scoreIEl.textContent = scores.I;
-scoreAEl.textContent = scores.A;
-scoreSEl.textContent = scores.S;
-scoreEEl.textContent = scores.E;
-scoreCEl.textContent = scores.C;
+if (resultTop3El) resultTop3El.textContent = top3.join("");
+if (resultConfidenceEl) resultConfidenceEl.textContent = calculateConfidence(scores);
+if (scoreREl) scoreREl.textContent = scores.R;
+if (scoreIEl) scoreIEl.textContent = scores.I;
+if (scoreAEl) scoreAEl.textContent = scores.A;
+if (scoreSEl) scoreSEl.textContent = scores.S;
+if (scoreEEl) scoreEEl.textContent = scores.E;
+if (scoreCEl) scoreCEl.textContent = scores.C;
 
 renderResultSuggestions(top3);
 await renderCharts(scores);
@@ -1108,9 +905,9 @@ const scores = result.scores;
 const top3 = result.top3;
 const student = result.student;
 const timestamp = result.timestamp;
-const lines = [];
 
 ```
+const lines = [];
 lines.push("KẾT QUẢ TRẮC NGHIỆM HOLLAND RIASEC");
 lines.push("----------------------------------");
 lines.push("Thời gian: " + timestamp);
@@ -1155,10 +952,12 @@ URL.revokeObjectURL(url);
 
 }
 
-// Admin table & CSV
+// ==============================
+// Admin table & dashboard
+// ==============================
 function refreshAdminTable(filters) {
-if (!filters) filters = {};
 if (!adminResultsTable) return;
+filters = filters || {};
 
 ```
 const results = loadLocalResults();
@@ -1171,6 +970,7 @@ let rendered = 0;
 results.forEach(function (r) {
     const d = new Date(r.timestamp);
     const dateStr = d.toISOString().slice(0, 10);
+
     if (classFilter && r.student.class !== classFilter) return;
     if (dateFilter && dateStr !== dateFilter) return;
 
@@ -1210,6 +1010,7 @@ results.forEach(function (r) {
         "<td>" +
         riasecStr +
         "</td>";
+
     adminResultsTable.appendChild(tr);
     rendered++;
 });
@@ -1232,9 +1033,8 @@ if (
 !statTotalClassesEl ||
 !statTotalSchoolsEl ||
 !adminClassStatsTable
-) {
+)
 return;
-}
 
 ```
 const results = loadLocalResults();
@@ -1247,7 +1047,6 @@ const countsByClass = {};
 results.forEach(function (r) {
     const cls = (r.student.class || "").trim();
     const school = (r.student.school || "").trim();
-
     if (cls) {
         classSet.add(cls);
         countsByClass[cls] = (countsByClass[cls] || 0) + 1;
@@ -1263,12 +1062,12 @@ statTotalSchoolsEl.textContent = String(schoolSet.size);
 
 const tbody = adminClassStatsTable.querySelector("tbody");
 if (!tbody) return;
-
 tbody.innerHTML = "";
 
 const entries = Object.entries(countsByClass).sort(function (a, b) {
     return b[1] - a[1];
 });
+
 if (!entries.length) {
     const tr = document.createElement("tr");
     tr.innerHTML =
@@ -1354,7 +1153,9 @@ const csv = rows
     })
     .join("\n");
 
-const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+const blob = new Blob([csv], {
+    type: "text/csv;charset=utf-8",
+});
 const url = URL.createObjectURL(blob);
 const a = document.createElement("a");
 a.href = url;
@@ -1367,87 +1168,35 @@ URL.revokeObjectURL(url);
 
 }
 
-// Admin login
-function handleAdminLogin() {
-const pw = adminPasswordInput.value;
-if (pw === ADMIN_PASSWORD) {
-isAdminLoggedIn = true;
-adminContent.classList.remove("hidden");
-adminLoginSection.classList.add("hidden");
-refreshAdminTable();
-loadGithubConfigToForm();
-} else {
-alert("Mật khẩu admin không đúng.");
-}
-}
-
-function loadGithubConfigToForm() {
-const cfg = loadGithubConfig();
-if (!cfg) return;
-ghOwnerInput.value = cfg.owner || "";
-ghRepoInput.value = cfg.repo || "";
-ghPathInput.value = cfg.path || "";
-ghTokenInput.value = cfg.token || "";
-ghSecretInput.value = cfg.secret || "";
-}
-
-function handleSaveGithubConfig() {
-const owner = ghOwnerInput.value.trim();
-const repo = ghRepoInput.value.trim();
-const path = ghPathInput.value.trim();
-const token = ghTokenInput.value.trim();
-const secret = ghSecretInput.value.trim();
+// ==============================
+// Submit / Reset
+// ==============================
+function ensureStudentInfo() {
+const name = sanitizeInput(studentNameInput.value);
+const cls = sanitizeInput(studentClassInput.value);
+const email = studentEmailInput.value.trim();
 
 ```
-if (!owner || !repo || !path || !token || !secret) {
-    alert("Vui lòng nhập đầy đủ Owner, Repo, Path, Token và Secret.");
-    return;
+if (!name) {
+    alert("Vui lòng nhập Họ và tên.");
+    studentNameInput.focus();
+    return false;
 }
-
-saveGithubConfig({ owner: owner, repo: repo, path: path, token: token, secret: secret });
-alert("Đã lưu cấu hình GitHub & mã hóa.");
+if (!cls) {
+    alert("Vui lòng nhập Lớp.");
+    studentClassInput.focus();
+    return false;
+}
+if (email && !validateEmail(email)) {
+    alert("Email không hợp lệ.");
+    studentEmailInput.focus();
+    return false;
+}
+return true;
 ```
 
 }
 
-// Tabs
-function initTabs() {
-tabButtons.forEach(function (btn) {
-btn.addEventListener("click", function () {
-const tabId = btn.getAttribute("data-tab");
-tabButtons.forEach(function (b) {
-b.classList.remove("active");
-});
-tabPanels.forEach(function (p) {
-p.classList.remove("active");
-});
-btn.classList.add("active");
-const panel = document.getElementById(tabId);
-if (panel) panel.classList.add("active");
-});
-});
-}
-
-// Autosave (30s)
-function initAutosave() {
-if (!questionsContainer) return;
-setInterval(function () {
-const draft = {};
-const pills = questionsContainer.querySelectorAll(".answer-pill");
-pills.forEach(function (pill) {
-const qid = Number(pill.dataset.qid);
-if (!draft[qid]) draft[qid] = null;
-if (pill.classList.contains("selected-yes")) {
-draft[qid] = true;
-} else if (pill.classList.contains("selected-no")) {
-draft[qid] = false;
-}
-});
-saveDraft(draft);
-}, 30000);
-}
-
-// Submit test
 async function handleSubmitTest() {
 if (!ensureStudentInfo()) return;
 
@@ -1481,39 +1230,74 @@ saveDraft({});
 
 await renderResultUI(result);
 
-// Chuyển sang tab kết quả
+// chuyển sang tab kết quả
 tabButtons.forEach(function (btn) {
     if (btn.getAttribute("data-tab") === "tab-result") {
         btn.click();
     }
 });
 
-// Auto sync GitHub nếu đang đăng nhập admin & đã cấu hình
-const ghConfig = loadGithubConfig();
-if (
-    isAdminLoggedIn &&
-    ghConfig &&
-    ghConfig.owner &&
-    ghConfig.repo &&
-    ghConfig.path &&
-    ghConfig.token &&
-    ghConfig.secret
-) {
-    syncAllLocalToGithub().catch(function (err) {
-        console.warn("Không đồng bộ được GitHub (tự động, có thể bỏ qua):", err);
-    });
+if (isAdminLoggedIn) {
+    refreshAdminTable();
 }
-
-refreshAdminTable();
 ```
 
 }
 
 function handleResetTest() {
-if (!confirm("Bạn có chắc muốn làm lại từ đầu? Tất cả lựa chọn hiện tại sẽ mất.")) return;
+if (!confirm("Bạn có chắc muốn làm lại từ đầu?")) return;
 localStorage.removeItem(LS_DRAFT_KEY);
 saveDraft({});
 buildQuestions();
+}
+
+// ==============================
+// Tabs, autosave, admin login
+// ==============================
+function initTabs() {
+tabButtons.forEach(function (btn) {
+btn.addEventListener("click", function () {
+const tabId = btn.getAttribute("data-tab");
+tabButtons.forEach(function (b) {
+b.classList.remove("active");
+});
+tabPanels.forEach(function (p) {
+p.classList.remove("active");
+});
+btn.classList.add("active");
+const panel = document.getElementById(tabId);
+if (panel) panel.classList.add("active");
+});
+});
+}
+
+function initAutosave() {
+if (!questionsContainer) return;
+setInterval(function () {
+const draft = {};
+const pills = questionsContainer.querySelectorAll(".answer-pill");
+pills.forEach(function (pill) {
+const qid = Number(pill.dataset.qid);
+if (pill.classList.contains("selected-yes")) {
+draft[qid] = true;
+} else if (pill.classList.contains("selected-no")) {
+draft[qid] = false;
+}
+});
+saveDraft(draft);
+}, 30000);
+}
+
+function handleAdminLogin() {
+const pw = adminPasswordInput.value;
+if (pw === ADMIN_PASSWORD) {
+isAdminLoggedIn = true;
+adminContent.classList.remove("hidden");
+adminLoginSection.classList.add("hidden");
+refreshAdminTable();
+} else {
+alert("Mật khẩu admin không đúng.");
+}
 }
 
 // ==============================
@@ -1527,14 +1311,14 @@ initTabs();
 initAutosave();
 
 ```
-// Listener chung cho tất cả câu hỏi
-if (questionsContainer) {
-    questionsContainer.addEventListener("click", handleQuestionClick);
-}
-
+// load kết quả gần nhất nếu có
 const results = loadLocalResults();
 if (results.length) {
     renderResultUI(results[results.length - 1]);
+}
+
+if (questionsContainer) {
+    questionsContainer.addEventListener("click", handleQuestionClick);
 }
 
 if (themeToggle) {
@@ -1590,27 +1374,6 @@ if (applyFilterBtn) {
 }
 if (exportCsvBtn) {
     exportCsvBtn.addEventListener("click", exportAllToCsv);
-}
-if (syncGithubBtn) {
-    syncGithubBtn.addEventListener("click", function () {
-        syncGithubBtn.disabled = true;
-        const oldText = syncGithubBtn.textContent;
-        syncGithubBtn.textContent = "Đang đồng bộ...";
-        syncAllLocalToGithub()
-            .catch(function (err) {
-                console.error(err);
-                alert(
-                    "Không đồng bộ được lên GitHub. Vui lòng kiểm tra cấu hình & Token."
-                );
-            })
-            .finally(function () {
-                syncGithubBtn.disabled = false;
-                syncGithubBtn.textContent = oldText;
-            });
-    });
-}
-if (saveGhConfigBtn) {
-    saveGhConfigBtn.addEventListener("click", handleSaveGithubConfig);
 }
 
 if (careerModalCloseBtn) {

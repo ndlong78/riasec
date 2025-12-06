@@ -598,7 +598,7 @@ const url = `https://api.github.com/repos/${encodeURIComponent(
 const res = await fetch(url, {
 headers: {
 Accept: "application/vnd.github+json",
-Authorization: `token ${token}`,
+Authorization: "token " + token, // dùng chuỗi thường để tránh lỗi cú pháp
 },
 });
 if (!res.ok) {
@@ -622,7 +622,7 @@ const res = await fetch(url, {
     method: "PUT",
     headers: {
         Accept: "application/vnd.github+json",
-        Authorization: `token ${token}`,
+        Authorization: "token " + token, // giống ở trên
     },
     body: JSON.stringify(body),
 });

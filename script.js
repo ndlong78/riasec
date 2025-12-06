@@ -535,7 +535,7 @@ resolve();
 return;
 }
 const script = document.createElement("script");
-script.src = "[https://cdn.jsdelivr.net/npm/chart.js](https://cdn.jsdelivr.net/npm/chart.js)";
+script.src = "https://cdn.jsdelivr.net/npm/chart.js";
 script.onload = function () {
 resolve();
 };
@@ -555,18 +555,15 @@ const brandNameEl = document.getElementById("brand-name");
 const brandTaglineEl = document.getElementById("brand-tagline");
 const brandLogoEl = document.getElementById("brand-logo");
 
-```
 if (brandNameEl) brandNameEl.textContent = BRAND_CONFIG.name;
 if (brandTaglineEl) brandTaglineEl.textContent = BRAND_CONFIG.tagline;
 if (brandLogoEl) brandLogoEl.src = BRAND_CONFIG.logo;
-```
 
 }
 
 function buildQuestions() {
 if (!questionsContainer) return;
 
-```
 questionsContainer.innerHTML = "";
 const draft = loadDraft();
 
@@ -612,14 +609,12 @@ questions.forEach(function (q) {
 });
 
 updateProgress();
-```
 
 }
 
 function updateProgress() {
 if (!questionsContainer || !progressBar || !progressFill || !progressText) return;
 
-```
 const answered = {};
 const pills = questionsContainer.querySelectorAll(".answer-pill");
 pills.forEach(function (pill) {
@@ -637,7 +632,6 @@ progressText.textContent = count + " / " + total + " câu hỏi";
 progressFill.style.width = percent + "%";
 progressBar.setAttribute("aria-valuenow", String(percent));
 if (progressPercentEl) progressPercentEl.textContent = percent + "%";
-```
 
 }
 
@@ -646,7 +640,6 @@ function handleQuestionClick(e) {
 const pill = e.target.closest(".answer-pill");
 if (!pill || !questionsContainer.contains(pill)) return;
 
-```
 const qid = Number(pill.dataset.qid);
 const value = pill.dataset.value;
 
@@ -669,7 +662,6 @@ if (value === "yes") {
 
 saveDraft(draft);
 updateProgress();
-```
 
 }
 
@@ -677,7 +669,6 @@ function calculateScores() {
 const scores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
 const draft = loadDraft();
 
-```
 Object.keys(draft).forEach(function (qidStr) {
     const value = draft[qidStr];
     const qid = Number(qidStr);
@@ -689,7 +680,6 @@ Object.keys(draft).forEach(function (qidStr) {
 });
 
 return scores;
-```
 
 }
 
@@ -717,7 +707,6 @@ return "Cần xem thêm";
 function renderResultSuggestions(top3) {
 if (!resultSuggestionsEl) return;
 
-```
 if (!top3 || !top3.length) {
     resultSuggestionsEl.innerHTML =
         "<p>Chưa có dữ liệu. Hãy làm bài trắc nghiệm trước.</p>";
@@ -759,7 +748,6 @@ top3.forEach(function (code) {
 
 resultSuggestionsEl.innerHTML = "";
 resultSuggestionsEl.appendChild(container);
-```
 
 }
 
@@ -767,7 +755,6 @@ function openCareerModal(code, career) {
 if (!careerModalBackdrop) return;
 const meta = riasecMeta[code];
 
-```
 careerModalTitle.textContent = career;
 
 const ul = document.createElement("ul");
@@ -789,7 +776,6 @@ items.forEach(function (txt) {
 careerModalBody.innerHTML = "";
 careerModalBody.appendChild(ul);
 careerModalBackdrop.classList.add("visible");
-```
 
 }
 
@@ -802,7 +788,6 @@ careerModalBackdrop.classList.remove("visible");
 async function renderCharts(scores) {
 await loadChartJsIfNeeded();
 
-```
 const barCanvas = document.getElementById("bar-chart");
 const radarCanvas = document.getElementById("radar-chart");
 if (!barCanvas || !radarCanvas) return;
@@ -871,7 +856,6 @@ radarChartInstance = new Chart(ctxRadar, {
         },
     },
 });
-```
 
 }
 
@@ -879,7 +863,6 @@ radarChartInstance = new Chart(ctxRadar, {
 async function renderResultUI(result) {
 if (!result || !result.scores) return;
 
-```
 const scores = result.scores;
 const top3 = result.top3 || getTop3Codes(scores);
 
@@ -894,7 +877,6 @@ if (scoreCEl) scoreCEl.textContent = scores.C;
 
 renderResultSuggestions(top3);
 await renderCharts(scores);
-```
 
 }
 
@@ -906,7 +888,6 @@ const top3 = result.top3;
 const student = result.student;
 const timestamp = result.timestamp;
 
-```
 const lines = [];
 lines.push("KẾT QUẢ TRẮC NGHIỆM HOLLAND RIASEC");
 lines.push("----------------------------------");
@@ -948,7 +929,6 @@ document.body.appendChild(a);
 a.click();
 document.body.removeChild(a);
 URL.revokeObjectURL(url);
-```
 
 }
 
@@ -959,7 +939,6 @@ function refreshAdminTable(filters) {
 if (!adminResultsTable) return;
 filters = filters || {};
 
-```
 const results = loadLocalResults();
 adminResultsTable.innerHTML = "";
 
@@ -1023,7 +1002,6 @@ if (rendered === 0) {
 }
 
 updateAdminStats();
-```
 
 }
 
@@ -1036,7 +1014,6 @@ if (
 )
 return;
 
-```
 const results = loadLocalResults();
 const total = results.length;
 
@@ -1083,7 +1060,6 @@ entries.forEach(function (entry) {
     tr.innerHTML = "<td>" + cls + "</td><td>" + count + "</td>";
     tbody.appendChild(tr);
 });
-```
 
 }
 
@@ -1103,7 +1079,6 @@ alert("Chưa có dữ liệu để xuất CSV.");
 return;
 }
 
-```
 const rows = [];
 rows.push([
     "timestamp",
@@ -1164,7 +1139,6 @@ document.body.appendChild(a);
 a.click();
 document.body.removeChild(a);
 URL.revokeObjectURL(url);
-```
 
 }
 
@@ -1176,7 +1150,6 @@ const name = sanitizeInput(studentNameInput.value);
 const cls = sanitizeInput(studentClassInput.value);
 const email = studentEmailInput.value.trim();
 
-```
 if (!name) {
     alert("Vui lòng nhập Họ và tên.");
     studentNameInput.focus();
@@ -1193,14 +1166,12 @@ if (email && !validateEmail(email)) {
     return false;
 }
 return true;
-```
 
 }
 
 async function handleSubmitTest() {
 if (!ensureStudentInfo()) return;
 
-```
 const scores = calculateScores();
 const top3 = getTop3Codes(scores);
 const now = new Date();
@@ -1240,7 +1211,6 @@ tabButtons.forEach(function (btn) {
 if (isAdminLoggedIn) {
     refreshAdminTable();
 }
-```
 
 }
 
@@ -1310,7 +1280,6 @@ buildQuestions();
 initTabs();
 initAutosave();
 
-```
 // load kết quả gần nhất nếu có
 const results = loadLocalResults();
 if (results.length) {
@@ -1391,7 +1360,6 @@ document.addEventListener("keydown", function (e) {
         closeCareerModal();
     }
 });
-```
 
 }
 

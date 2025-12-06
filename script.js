@@ -592,43 +592,56 @@ return null;
 // GitHub API helpers (Contents API)
 // ==============================
 async function githubGetFile(owner, repo, path, token) {
-const url = `https://api.github.com/repos/${encodeURIComponent(
-        owner
-    )}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(path)}`;
+const url =
+"[https://api.github.com/repos/](https://api.github.com/repos/)" +
+encodeURIComponent(owner) +
+"/" +
+encodeURIComponent(repo) +
+"/contents/" +
+encodeURIComponent(path);
+
+```
 const res = await fetch(url, {
-headers: {
-Accept: "application/vnd.github+json",
-Authorization: "token " + token, // dùng chuỗi thường để tránh lỗi cú pháp
-},
+    headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: "token " + token,
+    },
 });
 if (!res.ok) {
-throw new Error(`GitHub GET failed: ${res.status}`);
+    throw new Error("GitHub GET failed: " + res.status);
 }
 return res.json();
+```
+
 }
 
 async function githubPutFile(owner, repo, path, token, contentBase64, sha) {
-const url = `https://api.github.com/repos/${encodeURIComponent(
-        owner
-    )}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(path)}`;
+const url =
+"[https://api.github.com/repos/](https://api.github.com/repos/)" +
+encodeURIComponent(owner) +
+"/" +
+encodeURIComponent(repo) +
+"/contents/" +
+encodeURIComponent(path);
+
+```
 const body = {
-message: "Update RIASEC results",
-content: contentBase64,
+    message: "Update RIASEC results",
+    content: contentBase64,
 };
 if (sha) body.sha = sha;
 
-```
 const res = await fetch(url, {
     method: "PUT",
     headers: {
         Accept: "application/vnd.github+json",
-        Authorization: "token " + token, // giống ở trên
+        Authorization: "token " + token,
     },
     body: JSON.stringify(body),
 });
 
 if (!res.ok) {
-    throw new Error(`GitHub PUT failed: ${res.status}`);
+    throw new Error("GitHub PUT failed: " + res.status);
 }
 return res.json();
 ```
@@ -661,15 +674,19 @@ if (!localResults.length) {
     return;
 }
 
-const { owner, repo, path, token, secret } = cfg;
+const owner = cfg.owner;
+const repo = cfg.repo;
+const path = cfg.path;
+const token = cfg.token;
+const secret = cfg.secret;
 
 let remoteResults = [];
 let prevSha = undefined;
 
 try {
-    const fileData = await githubFetchWithRetry(() =>
-        githubGetFile(owner, repo, path, token)
-    );
+    const fileData = await githubFetchWithRetry(function () {
+        return githubGetFile(owner, repo, path, token);
+    });
     prevSha = fileData.sha;
 
     const decoded = atob(fileData.content.replace(/\n/g, ""));
@@ -684,8 +701,8 @@ try {
     console.warn("Không đọc được dữ liệu từ GitHub, sẽ tạo mới:", err);
 }
 
-const existingIds = new Set(remoteResults.map((r) => r.id));
-localResults.forEach((r) => {
+const existingIds = new Set(remoteResults.map(function (r) { return r.id; }));
+localResults.forEach(function (r) {
     if (!existingIds.has(r.id)) {
         remoteResults.push(r);
         existingIds.add(r.id);
@@ -707,15 +724,17 @@ alert("Đã đồng bộ dữ liệu lên GitHub thành công.");
 // Chart.js lazy-load
 // ==============================
 function loadChartJsIfNeeded() {
-return new Promise((resolve, reject) => {
+return new Promise(function (resolve, reject) {
 if (typeof Chart !== "undefined") {
 resolve();
 return;
 }
 const script = document.createElement("script");
 script.src = "[https://cdn.jsdelivr.net/npm/chart.js](https://cdn.jsdelivr.net/npm/chart.js)";
-script.onload = () => resolve();
-script.onerror = () => reject(new Error("Không tải được Chart.js"));
+script.onload = function () { resolve(); };
+script.onerror = function () {
+reject(new Error("Không tải được Chart.js"));
+};
 document.body.appendChild(script);
 });
 }
@@ -743,13 +762,13 @@ if (!questionsContainer) return;
 questionsContainer.innerHTML = "";
 const draft = loadDraft();
 
-questions.forEach((q) => {
+questions.forEach(function (q) {
     const wrapper = document.createElement("div");
     wrapper.className = "question-item";
 
     const meta = document.createElement("div");
     meta.className = "question-meta";
-    meta.textContent = `Câu ${q.id} – Nhóm ${q.code}`;
+    meta.textContent = "Câu " + q.id + " – Nhóm " + q.code;
 
     const text = document.createElement("div");
     text.className = "question-text";
@@ -798,7 +817,7 @@ if (!questionsContainer || !progressText || !progressFill || !progressBar) retur
 ```
 const answered = {};
 const pills = questionsContainer.querySelectorAll(".answer-pill");
-pills.forEach((pill) => {
+pills.forEach(function (pill) {
     const qid = Number(pill.dataset.qid);
     const isYes = pill.classList.contains("selected-yes");
     const isNo = pill.classList.contains("selected-no");
@@ -811,10 +830,10 @@ const count = Object.keys(answered).length;
 const total = questions.length;
 const percent = total ? Math.round((count / total) * 100) : 0;
 
-progressText.textContent = `${count} / ${total} câu hỏi`;
-progressFill.style.width = `${percent}%`;
+progressText.textContent = count + " / " + total + " câu hỏi";
+progressFill.style.width = percent + "%";
 progressBar.setAttribute("aria-valuenow", String(percent));
-if (progressPercentEl) progressPercentEl.textContent = `${percent}%`;
+if (progressPercentEl) progressPercentEl.textContent = percent + "%";
 ```
 
 }
@@ -856,9 +875,11 @@ const scores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
 const draft = loadDraft();
 
 ```
-Object.entries(draft).forEach(([qidStr, value]) => {
+Object.entries(draft).forEach(function (entry) {
+    const qidStr = entry[0];
+    const value = entry[1];
     const qid = Number(qidStr);
-    const q = questions.find((qq) => qq.id === qid);
+    const q = questions.find(function (qq) { return qq.id === qid; });
     if (!q) return;
     if (value === true) {
         scores[q.code] = (scores[q.code] || 0) + 1;
@@ -872,12 +893,14 @@ return scores;
 
 function getTop3Codes(scores) {
 const entries = Object.entries(scores);
-entries.sort((a, b) => b[1] - a[1]);
-return entries.slice(0, 3).map((e) => e[0]);
+entries.sort(function (a, b) { return b[1] - a[1]; });
+return entries.slice(0, 3).map(function (e) { return e[0]; });
 }
 
 function calculateConfidence(scores) {
-const values = Object.values(scores).sort((a, b) => b - a);
+const values = Object.values(scores).sort(function (a, b) {
+return b - a;
+});
 if (values.length < 2) return "Chưa đủ dữ liệu";
 const gap = values[0] - values[1];
 if (gap >= 5) return "Rõ ràng";
@@ -893,17 +916,16 @@ return;
 }
 
 ```
-const [c1, c2, c3] = top3;
 const list = document.createElement("div");
 
-[c1, c2, c3].forEach((code) => {
+[top3[0], top3[1], top3[2]].forEach(function (code) {
     const meta = riasecMeta[code];
     if (!meta) return;
     const block = document.createElement("div");
     block.className = "suggest-block";
 
     const title = document.createElement("h4");
-    title.textContent = `${code} – ${meta.name}`;
+    title.textContent = code + " – " + meta.name;
     block.appendChild(title);
 
     const desc = document.createElement("p");
@@ -911,12 +933,12 @@ const list = document.createElement("div");
     block.appendChild(desc);
 
     const careersWrap = document.createElement("div");
-    meta.careers.forEach((career) => {
+    meta.careers.forEach(function (career) {
         const tag = document.createElement("button");
         tag.className = "career-tag";
         tag.type = "button";
         tag.textContent = career;
-        tag.addEventListener("click", () => {
+        tag.addEventListener("click", function () {
             openCareerModal(code, career);
         });
         careersWrap.appendChild(tag);
@@ -942,13 +964,13 @@ const ul = document.createElement("ul");
 ul.className = "checklist";
 
 const items = [
-    `Thuộc nhóm ${code} – ${meta ? meta.name : ""}`,
+    "Thuộc nhóm " + code + " – " + (meta ? meta.name : ""),
     "Tìm hiểu các trường đào tạo ngành liên quan",
     "Tìm hiểu nhu cầu việc làm trong 5–10 năm tới",
     "Trao đổi thêm với giáo viên, phụ huynh về lựa chọn này",
 ];
 
-items.forEach((txt) => {
+items.forEach(function (txt) {
     const li = document.createElement("li");
     li.textContent = txt;
     ul.appendChild(li);
@@ -979,7 +1001,9 @@ const ctxBar = barCanvas.getContext("2d");
 const ctxRadar = radarCanvas.getContext("2d");
 
 const labels = ["R", "I", "A", "S", "E", "C"];
-const data = labels.map((code) => scores[code] || 0);
+const data = labels.map(function (code) {
+    return scores[code] || 0;
+});
 
 if (barChartInstance) {
     barChartInstance.destroy();
@@ -991,11 +1015,11 @@ if (radarChartInstance) {
 barChartInstance = new Chart(ctxBar, {
     type: "bar",
     data: {
-        labels,
+        labels: labels,
         datasets: [
             {
                 label: "Điểm RIASEC",
-                data,
+                data: data,
             },
         ],
     },
@@ -1005,7 +1029,9 @@ barChartInstance = new Chart(ctxBar, {
             legend: { display: false },
             tooltip: {
                 callbacks: {
-                    label: (ctx) => `${ctx.label}: ${ctx.raw} điểm`,
+                    label: function (ctx) {
+                        return ctx.label + ": " + ctx.raw + " điểm";
+                    },
                 },
             },
         },
@@ -1023,11 +1049,11 @@ barChartInstance = new Chart(ctxBar, {
 radarChartInstance = new Chart(ctxRadar, {
     type: "radar",
     data: {
-        labels,
+        labels: labels,
         datasets: [
             {
                 label: "Điểm RIASEC",
-                data,
+                data: data,
             },
         ],
     },
@@ -1052,13 +1078,7 @@ radarChartInstance = new Chart(ctxRadar, {
 
 // Result UI
 async function renderResultUI(result) {
-if (
-!result ||
-!result.scores ||
-!resultTop3El ||
-!resultConfidenceEl ||
-!scoreREl
-) {
+if (!result || !result.scores || !resultTop3El || !resultConfidenceEl || !scoreREl) {
 return;
 }
 
@@ -1084,29 +1104,32 @@ await renderCharts(scores);
 // Export TXT
 function exportResultTxt(result) {
 if (!result) return;
-const { scores, top3, student, timestamp } = result;
+const scores = result.scores;
+const top3 = result.top3;
+const student = result.student;
+const timestamp = result.timestamp;
 const lines = [];
 
 ```
 lines.push("KẾT QUẢ TRẮC NGHIỆM HOLLAND RIASEC");
 lines.push("----------------------------------");
-lines.push(`Thời gian: ${timestamp}`);
-lines.push(`Họ tên: ${student.name || ""}`);
-lines.push(`Mã HS: ${student.id || ""}`);
-lines.push(`Lớp: ${student.class || ""}`);
-lines.push(`Trường học / Khối lớp: ${student.school || ""}`);
-lines.push(`Email: ${student.email || ""}`);
+lines.push("Thời gian: " + timestamp);
+lines.push("Họ tên: " + (student.name || ""));
+lines.push("Mã HS: " + (student.id || ""));
+lines.push("Lớp: " + (student.class || ""));
+lines.push("Trường học / Khối lớp: " + (student.school || ""));
+lines.push("Email: " + (student.email || ""));
 lines.push("");
 lines.push("Điểm từng nhóm:");
-lines.push(`R (Thực tế): ${scores.R}`);
-lines.push(`I (Nghiên cứu): ${scores.I}`);
-lines.push(`A (Nghệ thuật): ${scores.A}`);
-lines.push(`S (Xã hội): ${scores.S}`);
-lines.push(`E (Doanh nghiệp): ${scores.E}`);
-lines.push(`C (Quy ước): ${scores.C}`);
+lines.push("R (Thực tế): " + scores.R);
+lines.push("I (Nghiên cứu): " + scores.I);
+lines.push("A (Nghệ thuật): " + scores.A);
+lines.push("S (Xã hội): " + scores.S);
+lines.push("E (Doanh nghiệp): " + scores.E);
+lines.push("C (Quy ước): " + scores.C);
 lines.push("");
-lines.push(`Top 3 nhóm nổi bật: ${top3.join(" – ")}`);
-lines.push(`Độ phân biệt: ${calculateConfidence(scores)}`);
+lines.push("Top 3 nhóm nổi bật: " + top3.join(" – "));
+lines.push("Độ phân biệt: " + calculateConfidence(scores));
 lines.push("");
 lines.push(
     "Lưu ý: Đây chỉ là công cụ tham khảo. Em nên trao đổi thêm với gia đình và thầy cô."
@@ -1118,9 +1141,12 @@ const blob = new Blob([lines.join("\n")], {
 const url = URL.createObjectURL(blob);
 const a = document.createElement("a");
 a.href = url;
-a.download = `riasec_${student.class || "hoc_sinh"}_${
-    student.name || "ket_qua"
-}.txt`;
+a.download =
+    "riasec_" +
+    (student.class || "hoc_sinh") +
+    "_" +
+    (student.name || "ket_qua") +
+    ".txt";
 document.body.appendChild(a);
 a.click();
 document.body.removeChild(a);
@@ -1130,41 +1156,68 @@ URL.revokeObjectURL(url);
 }
 
 // Admin table & CSV
-function refreshAdminTable(filters = {}) {
+function refreshAdminTable(filters) {
+if (!filters) filters = {};
 if (!adminResultsTable) return;
 
 ```
 const results = loadLocalResults();
 adminResultsTable.innerHTML = "";
 
-const { classFilter, dateFilter } = filters;
+const classFilter = filters.classFilter;
+const dateFilter = filters.dateFilter;
 let rendered = 0;
 
-results.forEach((r) => {
+results.forEach(function (r) {
     const d = new Date(r.timestamp);
     const dateStr = d.toISOString().slice(0, 10);
     if (classFilter && r.student.class !== classFilter) return;
     if (dateFilter && dateStr !== dateFilter) return;
 
     const tr = document.createElement("tr");
-    const riasecStr = `${r.scores.R}/${r.scores.I}/${r.scores.A}/${r.scores.S}/${r.scores.E}/${r.scores.C}`;
+    const riasecStr =
+        r.scores.R +
+        "/" +
+        r.scores.I +
+        "/" +
+        r.scores.A +
+        "/" +
+        r.scores.S +
+        "/" +
+        r.scores.E +
+        "/" +
+        r.scores.C;
 
-    tr.innerHTML = `
-        <td>${dateStr}</td>
-        <td>${r.student.name || ""}</td>
-        <td>${r.student.id || ""}</td>
-        <td>${r.student.class || ""}</td>
-        <td>${r.student.school || ""}</td>
-        <td>${r.student.email || ""}</td>
-        <td>${riasecStr}</td>
-    `;
+    tr.innerHTML =
+        "<td>" +
+        dateStr +
+        "</td>" +
+        "<td>" +
+        (r.student.name || "") +
+        "</td>" +
+        "<td>" +
+        (r.student.id || "") +
+        "</td>" +
+        "<td>" +
+        (r.student.class || "") +
+        "</td>" +
+        "<td>" +
+        (r.student.school || "") +
+        "</td>" +
+        "<td>" +
+        (r.student.email || "") +
+        "</td>" +
+        "<td>" +
+        riasecStr +
+        "</td>";
     adminResultsTable.appendChild(tr);
     rendered++;
 });
 
 if (rendered === 0) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="7" class="admin-empty-row">Không có kết quả phù hợp.</td>`;
+    tr.innerHTML =
+        '<td colspan="7" class="admin-empty-row">Không có kết quả phù hợp.</td>';
     adminResultsTable.appendChild(tr);
 }
 
@@ -1191,7 +1244,7 @@ const classSet = new Set();
 const schoolSet = new Set();
 const countsByClass = {};
 
-results.forEach((r) => {
+results.forEach(function (r) {
     const cls = (r.student.class || "").trim();
     const school = (r.student.school || "").trim();
 
@@ -1213,17 +1266,22 @@ if (!tbody) return;
 
 tbody.innerHTML = "";
 
-const entries = Object.entries(countsByClass).sort((a, b) => b[1] - a[1]);
+const entries = Object.entries(countsByClass).sort(function (a, b) {
+    return b[1] - a[1];
+});
 if (!entries.length) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="2" class="admin-empty-row">Chưa có dữ liệu.</td>`;
+    tr.innerHTML =
+        '<td colspan="2" class="admin-empty-row">Chưa có dữ liệu.</td>';
     tbody.appendChild(tr);
     return;
 }
 
-entries.forEach(([cls, count]) => {
+entries.forEach(function (entry) {
+    const cls = entry[0];
+    const count = entry[1];
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${cls}</td><td>${count}</td>`;
+    tr.innerHTML = "<td>" + cls + "</td><td>" + count + "</td>";
     tbody.appendChild(tr);
 });
 ```
@@ -1264,7 +1322,7 @@ rows.push([
     "top3",
 ]);
 
-results.forEach((r) => {
+results.forEach(function (r) {
     rows.push([
         r.timestamp,
         r.student.name || "",
@@ -1283,17 +1341,17 @@ results.forEach((r) => {
 });
 
 const csv = rows
-    .map((row) =>
-        row
-            .map((cell) => {
+    .map(function (row) {
+        return row
+            .map(function (cell) {
                 const v = String(cell || "");
                 if (v.includes(",") || v.includes('"')) {
-                    return `"${v.replace(/"/g, '""')}"`;
+                    return '"' + v.replace(/"/g, '""') + '"';
                 }
                 return v;
             })
-            .join(",")
-    )
+            .join(",");
+    })
     .join("\n");
 
 const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -1346,7 +1404,7 @@ if (!owner || !repo || !path || !token || !secret) {
     return;
 }
 
-saveGithubConfig({ owner, repo, path, token, secret });
+saveGithubConfig({ owner: owner, repo: repo, path: path, token: token, secret: secret });
 alert("Đã lưu cấu hình GitHub & mã hóa.");
 ```
 
@@ -1354,11 +1412,15 @@ alert("Đã lưu cấu hình GitHub & mã hóa.");
 
 // Tabs
 function initTabs() {
-tabButtons.forEach((btn) => {
-btn.addEventListener("click", () => {
+tabButtons.forEach(function (btn) {
+btn.addEventListener("click", function () {
 const tabId = btn.getAttribute("data-tab");
-tabButtons.forEach((b) => b.classList.remove("active"));
-tabPanels.forEach((p) => p.classList.remove("active"));
+tabButtons.forEach(function (b) {
+b.classList.remove("active");
+});
+tabPanels.forEach(function (p) {
+p.classList.remove("active");
+});
 btn.classList.add("active");
 const panel = document.getElementById(tabId);
 if (panel) panel.classList.add("active");
@@ -1369,10 +1431,10 @@ if (panel) panel.classList.add("active");
 // Autosave (30s)
 function initAutosave() {
 if (!questionsContainer) return;
-setInterval(() => {
+setInterval(function () {
 const draft = {};
 const pills = questionsContainer.querySelectorAll(".answer-pill");
-pills.forEach((pill) => {
+pills.forEach(function (pill) {
 const qid = Number(pill.dataset.qid);
 if (!draft[qid]) draft[qid] = null;
 if (pill.classList.contains("selected-yes")) {
@@ -1395,7 +1457,10 @@ const top3 = getTop3Codes(scores);
 const now = new Date();
 
 const result = {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    id:
+        Date.now().toString() +
+        "-" +
+        Math.random().toString(36).slice(2, 8),
     timestamp: now.toISOString(),
     student: {
         name: sanitizeInput(studentNameInput.value),
@@ -1404,8 +1469,8 @@ const result = {
         school: sanitizeInput(studentSchoolInput.value),
         email: sanitizeInput(studentEmailInput.value),
     },
-    scores,
-    top3,
+    scores: scores,
+    top3: top3,
 };
 
 const results = loadLocalResults();
@@ -1417,7 +1482,7 @@ saveDraft({});
 await renderResultUI(result);
 
 // Chuyển sang tab kết quả
-tabButtons.forEach((btn) => {
+tabButtons.forEach(function (btn) {
     if (btn.getAttribute("data-tab") === "tab-result") {
         btn.click();
     }
@@ -1434,7 +1499,7 @@ if (
     ghConfig.token &&
     ghConfig.secret
 ) {
-    syncAllLocalToGithub().catch((err) => {
+    syncAllLocalToGithub().catch(function (err) {
         console.warn("Không đồng bộ được GitHub (tự động, có thể bỏ qua):", err);
     });
 }
@@ -1473,20 +1538,20 @@ if (results.length) {
 }
 
 if (themeToggle) {
-    themeToggle.addEventListener("change", () => {
+    themeToggle.addEventListener("change", function () {
         applyTheme(themeToggle.checked ? "dark" : "light");
     });
 }
 
 if (submitTestBtn) {
-    submitTestBtn.addEventListener("click", () => {
+    submitTestBtn.addEventListener("click", function () {
         submitTestBtn.disabled = true;
         handleSubmitTest()
-            .catch((err) => {
+            .catch(function (err) {
                 console.error(err);
                 alert("Có lỗi xảy ra khi xử lý kết quả. Vui lòng thử lại.");
             })
-            .finally(() => {
+            .finally(function () {
                 submitTestBtn.disabled = false;
             });
     });
@@ -1497,8 +1562,8 @@ if (resetTestBtn) {
 }
 
 if (backToTestBtn) {
-    backToTestBtn.addEventListener("click", () => {
-        tabButtons.forEach((btn) => {
+    backToTestBtn.addEventListener("click", function () {
+        tabButtons.forEach(function (btn) {
             if (btn.getAttribute("data-tab") === "tab-test") {
                 btn.click();
             }
@@ -1507,7 +1572,7 @@ if (backToTestBtn) {
 }
 
 if (exportTxtBtn) {
-    exportTxtBtn.addEventListener("click", () => {
+    exportTxtBtn.addEventListener("click", function () {
         const results = loadLocalResults();
         if (!results.length) {
             alert("Chưa có kết quả nào để xuất.");
@@ -1527,18 +1592,18 @@ if (exportCsvBtn) {
     exportCsvBtn.addEventListener("click", exportAllToCsv);
 }
 if (syncGithubBtn) {
-    syncGithubBtn.addEventListener("click", () => {
+    syncGithubBtn.addEventListener("click", function () {
         syncGithubBtn.disabled = true;
         const oldText = syncGithubBtn.textContent;
         syncGithubBtn.textContent = "Đang đồng bộ...";
         syncAllLocalToGithub()
-            .catch((err) => {
+            .catch(function (err) {
                 console.error(err);
                 alert(
                     "Không đồng bộ được lên GitHub. Vui lòng kiểm tra cấu hình & Token."
                 );
             })
-            .finally(() => {
+            .finally(function () {
                 syncGithubBtn.disabled = false;
                 syncGithubBtn.textContent = oldText;
             });
@@ -1552,13 +1617,13 @@ if (careerModalCloseBtn) {
     careerModalCloseBtn.addEventListener("click", closeCareerModal);
 }
 if (careerModalBackdrop) {
-    careerModalBackdrop.addEventListener("click", (e) => {
+    careerModalBackdrop.addEventListener("click", function (e) {
         if (e.target === careerModalBackdrop) {
             closeCareerModal();
         }
     });
 }
-document.addEventListener("keydown", (e) => {
+document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
         closeCareerModal();
     }
